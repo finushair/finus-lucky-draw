@@ -1,0 +1,9 @@
+{
+  "name": "FINUS 週年驚喜抽",
+  "short_name": "FINUS 抽獎",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#f6f0e8",
+  "theme_color": "#f6f0e8",
+  "lang": "zh-Hant"
+}
