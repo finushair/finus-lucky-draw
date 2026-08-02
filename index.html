@@ -6,17 +6,13 @@
   <meta name="theme-color" content="#f6f0e8">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <link rel="manifest" href="manifest.json">
   <title>FINUS 週年驚喜抽</title>
   <style>
     :root{
-      --bg:#f6f0e8;
-      --paper:#fffdf9;
-      --mocha:#3f3028;
-      --taupe:#8f7c6f;
-      --line:#dfd2c6;
-      --gold:#c8a56b;
-      --gold-soft:#eadbc5;
-      --shadow:0 18px 48px rgba(70,52,42,.10);
+      --bg:#f6f0e8;--paper:#fffdf9;--mocha:#3f3028;--taupe:#8f7c6f;
+      --line:#dfd2c6;--gold:#c8a56b;--gold-soft:#eadbc5;
+      --shadow:0 18px 48px rgba(70,52,42,.10)
     }
     *{box-sizing:border-box}
     html,body{margin:0;min-height:100%;background:var(--bg);color:var(--mocha)}
@@ -26,24 +22,19 @@
         radial-gradient(circle at 8% 0%,rgba(200,165,107,.14),transparent 28%),
         linear-gradient(180deg,#fbf8f4 0%,#f4eee7 100%);
     }
-    button,input{font:inherit}
-    main{width:min(100%,760px);margin:0 auto;padding:24px 18px 44px}
-    .brand{text-align:center;margin:8px 0 22px}
-    .logo{font-family:Georgia,"Times New Roman",serif;letter-spacing:.32em;font-size:24px}
+    button,input,select{font:inherit}
+    main{width:min(100%,780px);margin:0 auto;padding:24px 18px 44px}
+    .brand{text-align:center;margin:8px 0 22px;user-select:none}
+    .logo{font-family:Georgia,"Times New Roman",serif;letter-spacing:.32em;font-size:24px;cursor:default}
     .salon{margin-top:5px;letter-spacing:.5em;font-size:11px;color:var(--taupe)}
     h1{
-      margin:18px 0 6px;text-align:center;
-      font-family:Georgia,"Noto Serif TC",serif;
+      margin:18px 0 6px;text-align:center;font-family:Georgia,"Noto Serif TC",serif;
       font-size:clamp(42px,12vw,72px);font-weight:500;letter-spacing:.08em
     }
     .date{text-align:center;color:var(--taupe);letter-spacing:.16em}
     .card{
-      background:rgba(255,253,249,.95);
-      border:1px solid var(--line);
-      border-radius:28px;
-      padding:24px;
-      box-shadow:var(--shadow);
-      backdrop-filter:blur(8px)
+      background:rgba(255,253,249,.95);border:1px solid var(--line);border-radius:28px;
+      padding:24px;box-shadow:var(--shadow);backdrop-filter:blur(8px)
     }
     .screen{display:none}.screen.active{display:block}
     .eyebrow{text-align:center;color:var(--taupe);letter-spacing:.16em;font-size:12px}
@@ -51,17 +42,20 @@
       text-align:center;font-family:Georgia,"Noto Serif TC",serif;
       font-size:30px;font-weight:500;margin:10px 0 24px
     }
+    h3{margin:24px 0 12px;font-size:18px}
     label{display:block;font-weight:600;margin-bottom:8px}
-    input[type=password]{
+    input[type=password],input[type=number],input[type=text],input[type=date],select{
       width:100%;border:1px solid var(--line);background:#fff;border-radius:16px;
-      padding:15px;font-size:20px;letter-spacing:.35em;text-align:center;color:var(--mocha)
+      padding:13px 14px;font-size:16px;color:var(--mocha)
     }
-    input:focus{outline:2px solid var(--gold);outline-offset:2px}
+    input[type=password]{font-size:20px;letter-spacing:.28em;text-align:center}
+    input:focus,select:focus{outline:2px solid var(--gold);outline-offset:2px}
     .btn{
       width:100%;border:0;border-radius:999px;padding:15px 20px;margin-top:16px;
-      background:var(--mocha);color:#fffaf4;font-weight:700;letter-spacing:.1em;cursor:pointer
+      background:var(--mocha);color:#fffaf4;font-weight:700;letter-spacing:.08em;cursor:pointer
     }
     .btn.secondary{background:transparent;color:var(--mocha);border:1px solid var(--line)}
+    .btn.danger{background:#8c4f46}
     .btn:disabled{opacity:.48;cursor:not-allowed}
     .msg{text-align:center;color:#a14c42;min-height:22px;margin-top:10px}
     .helper{text-align:center;color:var(--taupe);font-size:14px;line-height:1.6;margin-top:12px}
@@ -76,11 +70,7 @@
       border:1px solid var(--line);display:grid;place-items:center;
       box-shadow:inset 0 0 0 10px rgba(255,255,255,.45)
     }
-    #wheel{
-      width:92%;height:92%;
-      transition:transform 5.4s cubic-bezier(.12,.72,.18,1);
-      transform-origin:50% 50%
-    }
+    #wheel{width:92%;height:92%;transition:transform 5.4s cubic-bezier(.12,.72,.18,1);transform-origin:50% 50%}
     .hub{
       position:absolute;inset:38%;border-radius:50%;background:rgba(255,253,249,.98);
       border:1px solid var(--line);display:grid;place-items:center;text-align:center;z-index:4;
@@ -89,24 +79,32 @@
     .hub strong{font-family:Georgia,serif;letter-spacing:.18em}
     .hub small{display:block;color:var(--taupe);margin-top:3px}
     .result{text-align:center;position:relative;overflow:hidden}
-    .amount{
-      font-family:Georgia,serif;font-size:clamp(72px,22vw,120px);
-      margin:10px 0;color:var(--mocha)
-    }
-    .tag{
-      display:inline-block;background:var(--gold-soft);
-      padding:8px 14px;border-radius:999px;font-weight:700
-    }
+    .amount{font-family:Georgia,serif;font-size:clamp(72px,22vw,120px);margin:10px 0;color:var(--mocha)}
+    .tag{display:inline-block;background:var(--gold-soft);padding:8px 14px;border-radius:999px;font-weight:700}
     .result p{line-height:1.8}
     .check{
       margin-top:18px;padding:14px;border:1px solid var(--line);border-radius:16px;
       background:#fff;display:flex;gap:10px;align-items:flex-start;text-align:left
     }
     .check input{width:22px;height:22px;margin-top:2px}
-    .footer-note{
-      text-align:center;color:var(--taupe);font-size:13px;
-      margin-top:18px;letter-spacing:.05em
+    .footer-note{text-align:center;color:var(--taupe);font-size:13px;margin-top:18px;letter-spacing:.05em}
+    .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+    .stat{background:#fff;border:1px solid var(--line);border-radius:18px;padding:14px;text-align:center}
+    .stat small{color:var(--taupe);display:block;margin-bottom:6px}
+    .stat strong{font-family:Georgia,serif;font-size:28px}
+    .grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+    .switch-row{
+      display:flex;justify-content:space-between;align-items:center;
+      border:1px solid var(--line);background:#fff;border-radius:16px;padding:13px 14px;margin-top:10px
     }
+    .switch-row input{width:22px;height:22px}
+    .admin-actions{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+    dialog{
+      border:1px solid var(--line);border-radius:22px;padding:0;max-width:420px;width:calc(100% - 36px);
+      background:var(--paper);color:var(--mocha);box-shadow:var(--shadow)
+    }
+    dialog::backdrop{background:rgba(40,30,25,.34);backdrop-filter:blur(3px)}
+    .dialog-inner{padding:22px}
     .confetti{position:fixed;inset:0;pointer-events:none;overflow:hidden;z-index:99}
     .confetti i{
       position:absolute;top:-10px;width:8px;height:14px;opacity:0;
@@ -117,6 +115,10 @@
       10%{opacity:1}
       100%{transform:translate3d(var(--x),105vh,0) rotate(var(--r));opacity:0}
     }
+    @media(max-width:560px){
+      .stats{grid-template-columns:1fr}
+      .grid,.admin-actions{grid-template-columns:1fr}
+    }
     @media(max-width:420px){
       .card{padding:20px 16px;border-radius:22px}
       h1{font-size:48px}
@@ -126,10 +128,10 @@
 <body>
   <main>
     <header class="brand">
-      <div class="logo">FINUS</div>
+      <div id="logoTap" class="logo">FINUS</div>
       <div class="salon">SALON</div>
       <h1>週年驚喜抽</h1>
-      <div class="date">09.15 — 10.31</div>
+      <div id="displayDates" class="date">09.15 — 10.31</div>
     </header>
 
     <section id="login" class="screen active card">
@@ -150,22 +152,20 @@
         <div class="shell">
           <svg id="wheel" viewBox="0 0 400 400" role="img" aria-label="FINUS 週年驚喜抽轉盤"></svg>
         </div>
-        <div class="hub">
-          <div><strong>FINUS</strong><small>LUCKY DRAW</small></div>
-        </div>
+        <div class="hub"><div><strong>FINUS</strong><small>LUCKY DRAW</small></div></div>
       </div>
       <button id="spinBtn" class="btn" type="button">開始抽獎</button>
       <div class="helper">單次消費滿 $2,000，可獲得一次抽獎機會</div>
     </section>
 
     <section id="result" class="screen card result">
-      <div class="eyebrow">CONGRATULATIONS</div>
-      <h2>恭喜獲得</h2>
+      <div id="resultEyebrow" class="eyebrow">CONGRATULATIONS</div>
+      <h2 id="resultTitle">恭喜獲得</h2>
       <div id="amount" class="amount">$50</div>
       <div class="tag">會員電子優惠券</div>
       <p>
         請由櫃檯手動發送至會員帳戶<br>
-        使用期限：<strong>2026/12/10</strong><br>
+        使用期限：<strong id="expiryText">2026/12/10</strong><br>
         限原消費門市、原服務設計師使用
       </p>
       <label class="check">
@@ -175,18 +175,121 @@
       <button id="nextBtn" class="btn" type="button" disabled>完成，下一位</button>
     </section>
 
+    <section id="admin" class="screen card">
+      <div class="eyebrow">ADMIN CENTER</div>
+      <h2>FINUS 管理中心</h2>
+
+      <h3>今日統計</h3>
+      <div class="stats">
+        <div class="stat"><small>今日抽獎</small><strong id="todayTotal">0</strong></div>
+        <div class="stat"><small>$50</small><strong id="today50">0</strong></div>
+        <div class="stat"><small>$100</small><strong id="today100">0</strong></div>
+      </div>
+
+      <h3>累計統計</h3>
+      <div class="stats">
+        <div class="stat"><small>累計抽獎</small><strong id="allTotal">0</strong></div>
+        <div class="stat"><small>$50</small><strong id="all50">0</strong></div>
+        <div class="stat"><small>$100</small><strong id="all100">0</strong></div>
+      </div>
+
+      <h3>活動設定</h3>
+      <div class="grid">
+        <div>
+          <label for="prob100">100 元機率（%）</label>
+          <input id="prob100" type="number" min="0" max="100" step="1">
+        </div>
+        <div>
+          <label for="expiry">優惠券期限</label>
+          <input id="expiry" type="date">
+        </div>
+        <div>
+          <label for="startDate">活動開始日</label>
+          <input id="startDate" type="date">
+        </div>
+        <div>
+          <label for="endDate">活動結束日</label>
+          <input id="endDate" type="date">
+        </div>
+      </div>
+
+      <label class="switch-row">
+        <span>中獎提示音</span>
+        <input id="soundOn" type="checkbox">
+      </label>
+      <label class="switch-row">
+        <span>中獎彩帶</span>
+        <input id="confettiOn" type="checkbox">
+      </label>
+      <label class="switch-row">
+        <span>測試模式（不計入統計）</span>
+        <input id="testMode" type="checkbox">
+      </label>
+
+      <button id="saveSettings" class="btn" type="button">儲存設定</button>
+
+      <h3>紀錄管理</h3>
+      <div class="admin-actions">
+        <button id="exportCsv" class="btn secondary" type="button">匯出 CSV</button>
+        <button id="resetToday" class="btn secondary" type="button">重設今日統計</button>
+        <button id="resetAll" class="btn danger" type="button">重設全部統計</button>
+        <button id="adminLogout" class="btn secondary" type="button">離開管理中心</button>
+      </div>
+      <div id="adminMsg" class="helper"></div>
+    </section>
+
     <div class="footer-note">每份驚喜，都是 FINUS 的心意。</div>
   </main>
+
+  <dialog id="adminDialog">
+    <div class="dialog-inner">
+      <div class="eyebrow">ADMIN ONLY</div>
+      <h2>管理者登入</h2>
+      <label for="adminPw">請輸入管理者密碼</label>
+      <input id="adminPw" type="password" autocomplete="off">
+      <button id="adminLoginBtn" class="btn" type="button">進入後台</button>
+      <button id="adminCancelBtn" class="btn secondary" type="button">取消</button>
+      <div id="adminLoginMsg" class="msg"></div>
+    </div>
+  </dialog>
 
   <div id="confetti" class="confetti" aria-hidden="true"></div>
 
   <script>
-    const PASSWORD = '2026';
-    const prizes = [100,50,50,50,50,50,50,50,50,50];
+    const STAFF_PASSWORD = '2026';
+    const ADMIN_PASSWORD = 'jun0725';
+    const STORAGE_KEY = 'finusLuckyDrawV3';
 
-    const login = document.getElementById('login');
-    const draw = document.getElementById('draw');
-    const result = document.getElementById('result');
+    const defaults = {
+      probability100: 10,
+      startDate: '2026-09-15',
+      endDate: '2026-10-31',
+      expiry: '2026-12-10',
+      soundOn: true,
+      confettiOn: true,
+      testMode: false,
+      records: []
+    };
+
+    function loadData(){
+      try{
+        return {...defaults, ...JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}')};
+      }catch(e){
+        return {...defaults};
+      }
+    }
+    let data = loadData();
+
+    function saveData(){
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+    }
+
+    const screens = {
+      login: document.getElementById('login'),
+      draw: document.getElementById('draw'),
+      result: document.getElementById('result'),
+      admin: document.getElementById('admin')
+    };
     const pw = document.getElementById('pw');
     const msg = document.getElementById('msg');
     const wheel = document.getElementById('wheel');
@@ -195,32 +298,72 @@
     const sent = document.getElementById('sent');
     const amount = document.getElementById('amount');
     const confetti = document.getElementById('confetti');
+    const resultTitle = document.getElementById('resultTitle');
+    const resultEyebrow = document.getElementById('resultEyebrow');
+    const adminDialog = document.getElementById('adminDialog');
 
     let rotation = 0;
     let spinning = false;
+    let logoTapCount = 0;
+    let logoTapTimer;
 
-    function show(screen){
-      [login, draw, result].forEach(s => s.classList.remove('active'));
-      screen.classList.add('active');
+    function show(screenName){
+      Object.values(screens).forEach(s => s.classList.remove('active'));
+      screens[screenName].classList.add('active');
       window.scrollTo({top:0, behavior:'smooth'});
     }
 
-    function auth(){
-      if(pw.value === PASSWORD){
+    function formatDisplayDate(iso){
+      const d = new Date(iso + 'T00:00:00');
+      return String(d.getMonth()+1).padStart(2,'0') + '.' + String(d.getDate()).padStart(2,'0');
+    }
+
+    function refreshHeader(){
+      document.getElementById('displayDates').textContent =
+        formatDisplayDate(data.startDate) + ' — ' + formatDisplayDate(data.endDate);
+      document.getElementById('expiryText').textContent = data.expiry.replaceAll('-','/');
+    }
+
+    function staffAuth(){
+      if(pw.value === STAFF_PASSWORD){
         pw.value = '';
         msg.textContent = '';
-        show(draw);
+        show('draw');
       } else {
         msg.textContent = '密碼錯誤，請重新輸入';
         pw.select();
       }
     }
 
-    document.getElementById('loginBtn').addEventListener('click', auth);
+    document.getElementById('loginBtn').addEventListener('click', staffAuth);
     pw.addEventListener('keydown', e => {
-      if(e.key === 'Enter') auth();
+      if(e.key === 'Enter') staffAuth();
     });
 
+    document.getElementById('logoTap').addEventListener('click', () => {
+      logoTapCount++;
+      clearTimeout(logoTapTimer);
+      logoTapTimer = setTimeout(() => logoTapCount = 0, 900);
+      if(logoTapCount >= 3){
+        logoTapCount = 0;
+        document.getElementById('adminPw').value = '';
+        document.getElementById('adminLoginMsg').textContent = '';
+        adminDialog.showModal();
+      }
+    });
+
+    document.getElementById('adminCancelBtn').addEventListener('click', () => adminDialog.close());
+    document.getElementById('adminLoginBtn').addEventListener('click', () => {
+      if(document.getElementById('adminPw').value === ADMIN_PASSWORD){
+        adminDialog.close();
+        fillAdmin();
+        show('admin');
+      }else{
+        document.getElementById('adminLoginMsg').textContent = '管理者密碼錯誤';
+      }
+    });
+
+    const visualPrizes = [50,100,50,50,100,50,50,100,50,50];
     const NS = 'http://www.w3.org/2000/svg';
     const cx = 200, cy = 200, r = 180, slice = 36;
 
@@ -234,76 +377,93 @@
       return `M ${cx} ${cy} L ${p1.x} ${p1.y} A ${r} ${r} 0 0 1 ${p2.x} ${p2.y} Z`;
     }
 
-    prizes.forEach((value, i) => {
-      const start = i * slice;
-      const end = start + slice;
-      const mid = start + slice / 2;
+    function drawWheel(){
+      wheel.innerHTML = '';
+      visualPrizes.forEach((value, i) => {
+        const start = i * slice;
+        const end = start + slice;
+        const mid = start + slice / 2;
 
-      const path = document.createElementNS(NS, 'path');
-      path.setAttribute('d', pathFor(start, end));
-      path.setAttribute('fill', i === 0 ? '#d9bd8b' : (i % 2 ? '#eadfd2' : '#f4ece4'));
-      path.setAttribute('stroke', '#d8cabc');
-      path.setAttribute('stroke-width', '1');
-      wheel.appendChild(path);
+        const path = document.createElementNS(NS, 'path');
+        path.setAttribute('d', pathFor(start, end));
+        path.setAttribute('fill', value === 100 ? '#d9bd8b' : (i % 2 ? '#eadfd2' : '#f4ece4'));
+        path.setAttribute('stroke', '#d8cabc');
+        path.setAttribute('stroke-width', '1');
+        wheel.appendChild(path);
 
-      const pt = polar(mid, 126);
-      const text = document.createElementNS(NS, 'text');
-      text.setAttribute('x', pt.x);
-      text.setAttribute('y', pt.y + 8);
-      text.setAttribute('text-anchor', 'middle');
-      text.setAttribute('font-family', 'Georgia');
-      text.setAttribute('font-size', i === 0 ? '28' : '24');
-      text.setAttribute('fill', '#3f3028');
-      text.setAttribute('transform', `rotate(${mid},${pt.x},${pt.y})`);
-      text.textContent = '$' + value;
-      wheel.appendChild(text);
-    });
+        const pt = polar(mid, 126);
+        const text = document.createElementNS(NS, 'text');
+        text.setAttribute('x', pt.x);
+        text.setAttribute('y', pt.y + 8);
+        text.setAttribute('text-anchor', 'middle');
+        text.setAttribute('font-family', 'Georgia');
+        text.setAttribute('font-size', value === 100 ? '27' : '24');
+        text.setAttribute('font-weight', value === 100 ? '700' : '400');
+        text.setAttribute('fill', '#3f3028');
+        text.setAttribute('transform', `rotate(${mid},${pt.x},${pt.y})`);
+        text.textContent = '$' + value;
+        wheel.appendChild(text);
+      });
 
-    const rim = document.createElementNS(NS, 'circle');
-    rim.setAttribute('cx', cx);
-    rim.setAttribute('cy', cy);
-    rim.setAttribute('r', r);
-    rim.setAttribute('fill', 'none');
-    rim.setAttribute('stroke', '#c6a46a');
-    rim.setAttribute('stroke-width', '5');
-    wheel.appendChild(rim);
+      const rim = document.createElementNS(NS, 'circle');
+      rim.setAttribute('cx', cx);
+      rim.setAttribute('cy', cy);
+      rim.setAttribute('r', r);
+      rim.setAttribute('fill', 'none');
+      rim.setAttribute('stroke', '#c6a46a');
+      rim.setAttribute('stroke-width', '5');
+      wheel.appendChild(rim);
+    }
 
-    function playChime(){
+    function choosePrize(){
+      return Math.random() < (data.probability100 / 100) ? 100 : 50;
+    }
+
+    function chooseVisualIndex(prize){
+      const matches = visualPrizes.map((v,i) => v === prize ? i : -1).filter(i => i >= 0);
+      return matches[Math.floor(Math.random() * matches.length)];
+    }
+
+    function playChime(prize){
+      if(!data.soundOn) return;
       try{
         const AudioContext = window.AudioContext || window.webkitAudioContext;
         const ctx = new AudioContext();
         const osc = ctx.createOscillator();
         const gain = ctx.createGain();
-
         osc.type = 'sine';
-        osc.frequency.setValueAtTime(660, ctx.currentTime);
+        osc.frequency.setValueAtTime(prize === 100 ? 880 : 660, ctx.currentTime);
         gain.gain.setValueAtTime(.0001, ctx.currentTime);
         gain.gain.exponentialRampToValueAtTime(.12, ctx.currentTime + .02);
-        gain.gain.exponentialRampToValueAtTime(.0001, ctx.currentTime + .55);
-
+        gain.gain.exponentialRampToValueAtTime(.0001, ctx.currentTime + .6);
         osc.connect(gain);
         gain.connect(ctx.destination);
         osc.start();
-        osc.stop(ctx.currentTime + .6);
+        osc.stop(ctx.currentTime + .65);
       }catch(e){}
     }
 
-    function burst(){
+    function burst(prize){
+      if(!data.confettiOn) return;
       confetti.innerHTML = '';
-      for(let i = 0; i < 32; i++){
+      const count = prize === 100 ? 56 : 32;
+      for(let i = 0; i < count; i++){
         const el = document.createElement('i');
         el.style.left = Math.random() * 100 + 'vw';
-        el.style.setProperty('--x', (Math.random() * 160 - 80) + 'px');
+        el.style.setProperty('--x', (Math.random() * 180 - 90) + 'px');
         el.style.setProperty('--r', (Math.random() * 720 - 360) + 'deg');
         el.style.animationDelay = (Math.random() * .25) + 's';
         el.style.background = i % 3 === 0 ? '#c6a46a' : (i % 3 === 1 ? '#8f7b6d' : '#eadbc5');
         confetti.appendChild(el);
       }
-      setTimeout(() => confetti.innerHTML = '', 2300);
+      setTimeout(() => confetti.innerHTML = '', 2400);
     }
 
-    function prizeIndex(){
-      return Math.random() < .9 ? 1 + Math.floor(Math.random() * 9) : 0;
+    function localDateKey(date = new Date()){
+      const y = date.getFullYear();
+      const m = String(date.getMonth()+1).padStart(2,'0');
+      const d = String(date.getDate()).padStart(2,'0');
+      return `${y}-${m}-${d}`;
     }
 
     spinBtn.addEventListener('click', () => {
@@ -312,7 +472,8 @@
       spinning = true;
       spinBtn.disabled = true;
 
-      const idx = prizeIndex();
+      const prize = choosePrize();
+      const idx = chooseVisualIndex(prize);
       const center = idx * slice + slice / 2;
       const normalized = ((rotation % 360) + 360) % 360;
       const target = 360 - center;
@@ -322,12 +483,29 @@
       wheel.style.transform = `rotate(${rotation}deg)`;
 
       setTimeout(() => {
-        amount.textContent = '$' + prizes[idx];
+        amount.textContent = '$' + prize;
+        if(prize === 100){
+          resultEyebrow.textContent = 'LUCKY PRIZE';
+          resultTitle.textContent = '今日幸運獎！';
+        }else{
+          resultEyebrow.textContent = 'CONGRATULATIONS';
+          resultTitle.textContent = '恭喜獲得';
+        }
+
+        if(!data.testMode){
+          data.records.push({
+            time: new Date().toISOString(),
+            localDate: localDateKey(),
+            prize
+          });
+          saveData();
+        }
+
         sent.checked = false;
         nextBtn.disabled = true;
-        show(result);
-        playChime();
-        burst();
+        show('result');
+        playChime(prize);
+        burst(prize);
         spinning = false;
       }, 5500);
     });
@@ -338,9 +516,108 @@
 
     nextBtn.addEventListener('click', () => {
       spinBtn.disabled = false;
-      show(login);
+      show('login');
       pw.focus();
     });
+
+    function summarize(records){
+      const total = records.length;
+      const count50 = records.filter(r => r.prize === 50).length;
+      const count100 = records.filter(r => r.prize === 100).length;
+      return {total, count50, count100};
+    }
+
+    function fillAdmin(){
+      const today = localDateKey();
+      const todayRecords = data.records.filter(r => r.localDate === today);
+      const t = summarize(todayRecords);
+      const a = summarize(data.records);
+
+      document.getElementById('todayTotal').textContent = t.total;
+      document.getElementById('today50').textContent = t.count50;
+      document.getElementById('today100').textContent = t.count100;
+      document.getElementById('allTotal').textContent = a.total;
+      document.getElementById('all50').textContent = a.count50;
+      document.getElementById('all100').textContent = a.count100;
+
+      document.getElementById('prob100').value = data.probability100;
+      document.getElementById('startDate').value = data.startDate;
+      document.getElementById('endDate').value = data.endDate;
+      document.getElementById('expiry').value = data.expiry;
+      document.getElementById('soundOn').checked = data.soundOn;
+      document.getElementById('confettiOn').checked = data.confettiOn;
+      document.getElementById('testMode').checked = data.testMode;
+    }
+
+    document.getElementById('saveSettings').addEventListener('click', () => {
+      const probability = Number(document.getElementById('prob100').value);
+      if(!Number.isFinite(probability) || probability < 0 || probability > 100){
+        document.getElementById('adminMsg').textContent = '100 元機率請輸入 0～100。';
+        return;
+      }
+
+      data.probability100 = probability;
+      data.startDate = document.getElementById('startDate').value || defaults.startDate;
+      data.endDate = document.getElementById('endDate').value || defaults.endDate;
+      data.expiry = document.getElementById('expiry').value || defaults.expiry;
+      data.soundOn = document.getElementById('soundOn').checked;
+      data.confettiOn = document.getElementById('confettiOn').checked;
+      data.testMode = document.getElementById('testMode').checked;
+      saveData();
+      refreshHeader();
+      document.getElementById('adminMsg').textContent = '設定已儲存。';
+    });
+
+    document.getElementById('resetToday').addEventListener('click', () => {
+      if(!confirm('確定要重設今天的統計嗎？')) return;
+      const today = localDateKey();
+      data.records = data.records.filter(r => r.localDate !== today);
+      saveData();
+      fillAdmin();
+    });
+
+    document.getElementById('resetAll').addEventListener('click', () => {
+      if(!confirm('確定要清除全部抽獎統計嗎？此動作無法復原。')) return;
+      data.records = [];
+      saveData();
+      fillAdmin();
+    });
+
+    document.getElementById('exportCsv').addEventListener('click', () => {
+      const rows = [['日期','時間','獎項']];
+      data.records.forEach(r => {
+        const d = new Date(r.time);
+        rows.push([
+          r.localDate,
+          d.toLocaleTimeString('zh-TW',{hour:'2-digit',minute:'2-digit',second:'2-digit'}),
+          '$' + r.prize
+        ]);
+      });
+
+      const csv = '\ufeff' + rows.map(row =>
+        row.map(cell => `"${String(cell).replaceAll('"','""')}"`).join(',')
+      ).join('\n');
+
+      const blob = new Blob([csv], {type:'text/csv;charset=utf-8'});
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'FINUS-抽獎紀錄.csv';
+      a.click();
+      URL.revokeObjectURL(url);
+    });
+
+    document.getElementById('adminLogout').addEventListener('click', () => {
+      refreshHeader();
+      show('login');
+    });
+
+    drawWheel();
+    refreshHeader();
+
+    if('serviceWorker' in navigator){
+      window.addEventListener('load', () => navigator.serviceWorker.register('./sw.js').catch(() => {}));
+    }
   </script>
 </body>
 </html>
