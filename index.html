@@ -1,64 +1,346 @@
 <!doctype html>
 <html lang="zh-Hant">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#f6f1eb">
-<title>FINUS 週年驚喜抽</title>
-<style>
-:root{--bg:#f6f1eb;--panel:#fffdf9;--mocha:#3f3028;--taupe:#8f7b6d;--line:#ded1c5;--gold:#c6a46a;--gold2:#eadbc5}
-*{box-sizing:border-box}body{margin:0;min-height:100vh;background:linear-gradient(#fbf8f4,#f4eee7);color:var(--mocha);font-family:-apple-system,BlinkMacSystemFont,"PingFang TC",sans-serif}
-main{width:min(100%,760px);margin:auto;padding:24px 18px 40px}
-.brand{text-align:center}.logo{font-family:Georgia,serif;letter-spacing:.32em;font-size:24px}.salon{font-size:11px;letter-spacing:.5em;color:var(--taupe);margin-top:4px}
-h1{font-family:Georgia,"Noto Serif TC",serif;font-size:clamp(42px,12vw,72px);font-weight:500;letter-spacing:.08em;margin:18px 0 5px}.date{color:var(--taupe);letter-spacing:.16em}
-.card{background:rgba(255,253,249,.94);border:1px solid var(--line);border-radius:26px;padding:24px;margin-top:22px;box-shadow:0 18px 50px rgba(76,55,43,.1)}
-.screen{display:none}.screen.active{display:block}.eyebrow{text-align:center;color:var(--taupe);letter-spacing:.14em;font-size:13px}
-h2{text-align:center;font-family:Georgia,"Noto Serif TC",serif;font-size:30px;font-weight:500;margin:10px 0 24px}
-label{display:block;font-weight:600;margin-bottom:8px}input[type=password]{width:100%;border:1px solid var(--line);background:#fff;border-radius:16px;padding:15px;font-size:20px;letter-spacing:.35em;text-align:center;color:var(--mocha)}
-button{width:100%;border:0;border-radius:999px;padding:15px 20px;margin-top:16px;background:var(--mocha);color:#fffaf4;font-weight:700;letter-spacing:.1em}
-button:disabled{opacity:.5}.msg{text-align:center;color:#a14c42;min-height:22px;margin-top:10px}
-.wheelArea{position:relative;width:min(100%,520px);aspect-ratio:1;margin:0 auto 20px}.pointer{position:absolute;z-index:5;top:-2px;left:50%;transform:translateX(-50%);width:0;height:0;border-left:18px solid transparent;border-right:18px solid transparent;border-top:40px solid var(--gold)}
-.shell{position:absolute;inset:4%;border-radius:50%;background:var(--panel);border:1px solid var(--line);display:grid;place-items:center}#wheel{width:92%;height:92%;transition:transform 5.4s cubic-bezier(.12,.72,.18,1);transform-origin:50% 50%}
-.hub{position:absolute;inset:38%;border-radius:50%;background:var(--panel);border:1px solid var(--line);display:grid;place-items:center;text-align:center;z-index:4;box-shadow:0 10px 30px rgba(60,45,37,.12)}.hub strong{font-family:Georgia,serif;letter-spacing:.18em}.hub small{display:block;color:var(--taupe);margin-top:3px}
-.result{text-align:center}.amount{font-family:Georgia,serif;font-size:clamp(72px,22vw,120px);margin:10px 0}.tag{display:inline-block;background:var(--gold2);padding:8px 14px;border-radius:999px;font-weight:700}.result p{line-height:1.8}
-.check{margin-top:18px;padding:14px;border:1px solid var(--line);border-radius:16px;background:#fff;display:flex;gap:10px;align-items:flex-start;text-align:left}.check input{width:22px;height:22px}.tiny{text-align:center;color:var(--taupe);font-size:12px;margin-top:18px}
-</style>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#f6f0e8">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <title>FINUS 週年驚喜抽</title>
+  <style>
+    :root{
+      --bg:#f6f0e8;
+      --paper:#fffdf9;
+      --mocha:#3f3028;
+      --taupe:#8f7c6f;
+      --line:#dfd2c6;
+      --gold:#c8a56b;
+      --gold-soft:#eadbc5;
+      --shadow:0 18px 48px rgba(70,52,42,.10);
+    }
+    *{box-sizing:border-box}
+    html,body{margin:0;min-height:100%;background:var(--bg);color:var(--mocha)}
+    body{
+      font-family:-apple-system,BlinkMacSystemFont,"PingFang TC","Noto Sans TC","Helvetica Neue",Arial,sans-serif;
+      background:
+        radial-gradient(circle at 8% 0%,rgba(200,165,107,.14),transparent 28%),
+        linear-gradient(180deg,#fbf8f4 0%,#f4eee7 100%);
+    }
+    button,input{font:inherit}
+    main{width:min(100%,760px);margin:0 auto;padding:24px 18px 44px}
+    .brand{text-align:center;margin:8px 0 22px}
+    .logo{font-family:Georgia,"Times New Roman",serif;letter-spacing:.32em;font-size:24px}
+    .salon{margin-top:5px;letter-spacing:.5em;font-size:11px;color:var(--taupe)}
+    h1{
+      margin:18px 0 6px;text-align:center;
+      font-family:Georgia,"Noto Serif TC",serif;
+      font-size:clamp(42px,12vw,72px);font-weight:500;letter-spacing:.08em
+    }
+    .date{text-align:center;color:var(--taupe);letter-spacing:.16em}
+    .card{
+      background:rgba(255,253,249,.95);
+      border:1px solid var(--line);
+      border-radius:28px;
+      padding:24px;
+      box-shadow:var(--shadow);
+      backdrop-filter:blur(8px)
+    }
+    .screen{display:none}.screen.active{display:block}
+    .eyebrow{text-align:center;color:var(--taupe);letter-spacing:.16em;font-size:12px}
+    h2{
+      text-align:center;font-family:Georgia,"Noto Serif TC",serif;
+      font-size:30px;font-weight:500;margin:10px 0 24px
+    }
+    label{display:block;font-weight:600;margin-bottom:8px}
+    input[type=password]{
+      width:100%;border:1px solid var(--line);background:#fff;border-radius:16px;
+      padding:15px;font-size:20px;letter-spacing:.35em;text-align:center;color:var(--mocha)
+    }
+    input:focus{outline:2px solid var(--gold);outline-offset:2px}
+    .btn{
+      width:100%;border:0;border-radius:999px;padding:15px 20px;margin-top:16px;
+      background:var(--mocha);color:#fffaf4;font-weight:700;letter-spacing:.1em;cursor:pointer
+    }
+    .btn.secondary{background:transparent;color:var(--mocha);border:1px solid var(--line)}
+    .btn:disabled{opacity:.48;cursor:not-allowed}
+    .msg{text-align:center;color:#a14c42;min-height:22px;margin-top:10px}
+    .helper{text-align:center;color:var(--taupe);font-size:14px;line-height:1.6;margin-top:12px}
+    .wheel-area{position:relative;width:min(100%,520px);aspect-ratio:1;margin:0 auto 22px}
+    .pointer{
+      position:absolute;z-index:5;top:-3px;left:50%;transform:translateX(-50%);
+      width:0;height:0;border-left:18px solid transparent;border-right:18px solid transparent;
+      border-top:42px solid var(--gold);filter:drop-shadow(0 4px 3px rgba(0,0,0,.12))
+    }
+    .shell{
+      position:absolute;inset:4%;border-radius:50%;background:var(--paper);
+      border:1px solid var(--line);display:grid;place-items:center;
+      box-shadow:inset 0 0 0 10px rgba(255,255,255,.45)
+    }
+    #wheel{
+      width:92%;height:92%;
+      transition:transform 5.4s cubic-bezier(.12,.72,.18,1);
+      transform-origin:50% 50%
+    }
+    .hub{
+      position:absolute;inset:38%;border-radius:50%;background:rgba(255,253,249,.98);
+      border:1px solid var(--line);display:grid;place-items:center;text-align:center;z-index:4;
+      box-shadow:0 10px 30px rgba(60,45,37,.12)
+    }
+    .hub strong{font-family:Georgia,serif;letter-spacing:.18em}
+    .hub small{display:block;color:var(--taupe);margin-top:3px}
+    .result{text-align:center;position:relative;overflow:hidden}
+    .amount{
+      font-family:Georgia,serif;font-size:clamp(72px,22vw,120px);
+      margin:10px 0;color:var(--mocha)
+    }
+    .tag{
+      display:inline-block;background:var(--gold-soft);
+      padding:8px 14px;border-radius:999px;font-weight:700
+    }
+    .result p{line-height:1.8}
+    .check{
+      margin-top:18px;padding:14px;border:1px solid var(--line);border-radius:16px;
+      background:#fff;display:flex;gap:10px;align-items:flex-start;text-align:left
+    }
+    .check input{width:22px;height:22px;margin-top:2px}
+    .footer-note{
+      text-align:center;color:var(--taupe);font-size:13px;
+      margin-top:18px;letter-spacing:.05em
+    }
+    .confetti{position:fixed;inset:0;pointer-events:none;overflow:hidden;z-index:99}
+    .confetti i{
+      position:absolute;top:-10px;width:8px;height:14px;opacity:0;
+      animation:fall 1.8s ease-out forwards
+    }
+    @keyframes fall{
+      0%{transform:translate3d(0,-20px,0) rotate(0);opacity:0}
+      10%{opacity:1}
+      100%{transform:translate3d(var(--x),105vh,0) rotate(var(--r));opacity:0}
+    }
+    @media(max-width:420px){
+      .card{padding:20px 16px;border-radius:22px}
+      h1{font-size:48px}
+    }
+  </style>
 </head>
 <body>
-<main>
-<header class="brand"><div class="logo">FINUS</div><div class="salon">SALON</div><h1>週年驚喜抽</h1><div class="date">09.15 — 10.31</div></header>
+  <main>
+    <header class="brand">
+      <div class="logo">FINUS</div>
+      <div class="salon">SALON</div>
+      <h1>週年驚喜抽</h1>
+      <div class="date">09.15 — 10.31</div>
+    </header>
 
-<section id="login" class="screen active card">
-<div class="eyebrow">STAFF ONLY</div><h2>店員解鎖</h2>
-<label for="pw">請輸入密碼</label><input id="pw" type="password" inputmode="numeric" maxlength="4" placeholder="••••">
-<button id="loginBtn" type="button">進入抽獎</button><div id="msg" class="msg"></div><div class="tiny">下一位客人需重新輸入密碼</div>
-</section>
+    <section id="login" class="screen active card">
+      <div class="eyebrow">STAFF ONLY</div>
+      <h2>店員解鎖</h2>
+      <label for="pw">請輸入密碼</label>
+      <input id="pw" type="password" inputmode="numeric" maxlength="4" placeholder="••••" autocomplete="off">
+      <button id="loginBtn" class="btn" type="button">進入抽獎</button>
+      <div id="msg" class="msg" aria-live="polite"></div>
+      <div class="helper">每位客人抽完後，下一位需重新輸入密碼</div>
+    </section>
 
-<section id="draw" class="screen card">
-<div class="eyebrow">ANNIVERSARY LUCKY DRAW</div><h2>祝你好運</h2>
-<div class="wheelArea"><div class="pointer"></div><div class="shell"><svg id="wheel" viewBox="0 0 400 400"></svg></div><div class="hub"><div><strong>FINUS</strong><small>LUCKY DRAW</small></div></div></div>
-<button id="spinBtn" type="button">開始抽獎</button><div class="tiny">單次消費滿 $2,000，可獲得一次抽獎機會</div>
-</section>
+    <section id="draw" class="screen card">
+      <div class="eyebrow">ANNIVERSARY LUCKY DRAW</div>
+      <h2>祝你好運</h2>
+      <div class="wheel-area" aria-label="FINUS 週年慶抽獎轉盤">
+        <div class="pointer" aria-hidden="true"></div>
+        <div class="shell">
+          <svg id="wheel" viewBox="0 0 400 400" role="img" aria-label="FINUS 週年驚喜抽轉盤"></svg>
+        </div>
+        <div class="hub">
+          <div><strong>FINUS</strong><small>LUCKY DRAW</small></div>
+        </div>
+      </div>
+      <button id="spinBtn" class="btn" type="button">開始抽獎</button>
+      <div class="helper">單次消費滿 $2,000，可獲得一次抽獎機會</div>
+    </section>
 
-<section id="result" class="screen card result">
-<div class="eyebrow">CONGRATULATIONS</div><h2>恭喜獲得</h2><div id="amount" class="amount">$50</div><div class="tag">會員電子優惠券</div>
-<p>請由櫃檯手動發送至會員帳戶<br>使用期限：<strong>2026/12/10</strong><br>限原消費門市、原服務設計師使用</p>
-<label class="check"><input id="sent" type="checkbox"><span><strong>我已在會員後台發送電子優惠券</strong><br><small>勾選後才能進入下一位。</small></span></label>
-<button id="nextBtn" type="button" disabled>完成，下一位</button>
-</section>
+    <section id="result" class="screen card result">
+      <div class="eyebrow">CONGRATULATIONS</div>
+      <h2>恭喜獲得</h2>
+      <div id="amount" class="amount">$50</div>
+      <div class="tag">會員電子優惠券</div>
+      <p>
+        請由櫃檯手動發送至會員帳戶<br>
+        使用期限：<strong>2026/12/10</strong><br>
+        限原消費門市、原服務設計師使用
+      </p>
+      <label class="check">
+        <input id="sent" type="checkbox">
+        <span><strong>我已在會員後台發送電子優惠券</strong><br><small>勾選後才能進入下一位。</small></span>
+      </label>
+      <button id="nextBtn" class="btn" type="button" disabled>完成，下一位</button>
+    </section>
 
-<div class="tiny">50 元 90%｜100 元 10%｜可與會員點數併用</div>
-</main>
-<script>
-const P='1688',pr=[100,50,50,50,50,50,50,50,50,50],login=document.getElementById('login'),draw=document.getElementById('draw'),result=document.getElementById('result'),pw=document.getElementById('pw'),msg=document.getElementById('msg'),wheel=document.getElementById('wheel'),spinBtn=document.getElementById('spinBtn'),nextBtn=document.getElementById('nextBtn'),sent=document.getElementById('sent'),amount=document.getElementById('amount');let rot=0,spinning=false;
-function show(x){[login,draw,result].forEach(s=>s.classList.remove('active'));x.classList.add('active');scrollTo({top:0,behavior:'smooth'})}
-function auth(){if(pw.value===P){pw.value='';msg.textContent='';show(draw)}else{msg.textContent='密碼錯誤，請重新輸入';pw.select()}}
-document.getElementById('loginBtn').onclick=auth;pw.addEventListener('keydown',e=>{if(e.key==='Enter')auth()});
-const NS='http://www.w3.org/2000/svg',cx=200,cy=200,r=180,s=36;function polar(a,rr=r){let x=(a-90)*Math.PI/180;return{x:cx+rr*Math.cos(x),y:cy+rr*Math.sin(x)}}function path(a,b){let x=polar(a),y=polar(b);return`M ${cx} ${cy} L ${x.x} ${x.y} A ${r} ${r} 0 0 1 ${y.x} ${y.y} Z`}
-pr.forEach((v,i)=>{let a=i*s,b=a+s,m=a+s/2,p=document.createElementNS(NS,'path');p.setAttribute('d',path(a,b));p.setAttribute('fill',i===0?'#d9bd8b':(i%2?'#eadfd2':'#f4ece4'));p.setAttribute('stroke','#d8cabc');wheel.appendChild(p);let q=polar(m,126),t=document.createElementNS(NS,'text');t.setAttribute('x',q.x);t.setAttribute('y',q.y+8);t.setAttribute('text-anchor','middle');t.setAttribute('font-family','Georgia');t.setAttribute('font-size',i===0?'28':'24');t.setAttribute('fill','#3f3028');t.setAttribute('transform',`rotate(${m},${q.x},${q.y})`);t.textContent='$'+v;wheel.appendChild(t)});
-let rim=document.createElementNS(NS,'circle');rim.setAttribute('cx',cx);rim.setAttribute('cy',cy);rim.setAttribute('r',r);rim.setAttribute('fill','none');rim.setAttribute('stroke','#c6a46a');rim.setAttribute('stroke-width','5');wheel.appendChild(rim);
-spinBtn.onclick=()=>{if(spinning)return;spinning=true;spinBtn.disabled=true;let idx=Math.random()<.9?1+Math.floor(Math.random()*9):0,center=idx*s+s/2,n=((rot%360)+360)%360,target=360-center,delta=(6+Math.floor(Math.random()*3))*360+((target-n+360)%360);rot+=delta;wheel.style.transform=`rotate(${rot}deg)`;setTimeout(()=>{amount.textContent='$'+pr[idx];sent.checked=false;nextBtn.disabled=true;show(result);spinning=false},5500)};
-sent.onchange=()=>nextBtn.disabled=!sent.checked;nextBtn.onclick=()=>{spinBtn.disabled=false;show(login);pw.focus()};
-</script>
+    <div class="footer-note">每份驚喜，都是 FINUS 的心意。</div>
+  </main>
+
+  <div id="confetti" class="confetti" aria-hidden="true"></div>
+
+  <script>
+    const PASSWORD = '2026';
+    const prizes = [100,50,50,50,50,50,50,50,50,50];
+
+    const login = document.getElementById('login');
+    const draw = document.getElementById('draw');
+    const result = document.getElementById('result');
+    const pw = document.getElementById('pw');
+    const msg = document.getElementById('msg');
+    const wheel = document.getElementById('wheel');
+    const spinBtn = document.getElementById('spinBtn');
+    const nextBtn = document.getElementById('nextBtn');
+    const sent = document.getElementById('sent');
+    const amount = document.getElementById('amount');
+    const confetti = document.getElementById('confetti');
+
+    let rotation = 0;
+    let spinning = false;
+
+    function show(screen){
+      [login, draw, result].forEach(s => s.classList.remove('active'));
+      screen.classList.add('active');
+      window.scrollTo({top:0, behavior:'smooth'});
+    }
+
+    function auth(){
+      if(pw.value === PASSWORD){
+        pw.value = '';
+        msg.textContent = '';
+        show(draw);
+      } else {
+        msg.textContent = '密碼錯誤，請重新輸入';
+        pw.select();
+      }
+    }
+
+    document.getElementById('loginBtn').addEventListener('click', auth);
+    pw.addEventListener('keydown', e => {
+      if(e.key === 'Enter') auth();
+    });
+
+    const NS = 'http://www.w3.org/2000/svg';
+    const cx = 200, cy = 200, r = 180, slice = 36;
+
+    function polar(a, rr = r){
+      const rad = (a - 90) * Math.PI / 180;
+      return {x: cx + rr * Math.cos(rad), y: cy + rr * Math.sin(rad)};
+    }
+
+    function pathFor(a, b){
+      const p1 = polar(a), p2 = polar(b);
+      return `M ${cx} ${cy} L ${p1.x} ${p1.y} A ${r} ${r} 0 0 1 ${p2.x} ${p2.y} Z`;
+    }
+
+    prizes.forEach((value, i) => {
+      const start = i * slice;
+      const end = start + slice;
+      const mid = start + slice / 2;
+
+      const path = document.createElementNS(NS, 'path');
+      path.setAttribute('d', pathFor(start, end));
+      path.setAttribute('fill', i === 0 ? '#d9bd8b' : (i % 2 ? '#eadfd2' : '#f4ece4'));
+      path.setAttribute('stroke', '#d8cabc');
+      path.setAttribute('stroke-width', '1');
+      wheel.appendChild(path);
+
+      const pt = polar(mid, 126);
+      const text = document.createElementNS(NS, 'text');
+      text.setAttribute('x', pt.x);
+      text.setAttribute('y', pt.y + 8);
+      text.setAttribute('text-anchor', 'middle');
+      text.setAttribute('font-family', 'Georgia');
+      text.setAttribute('font-size', i === 0 ? '28' : '24');
+      text.setAttribute('fill', '#3f3028');
+      text.setAttribute('transform', `rotate(${mid},${pt.x},${pt.y})`);
+      text.textContent = '$' + value;
+      wheel.appendChild(text);
+    });
+
+    const rim = document.createElementNS(NS, 'circle');
+    rim.setAttribute('cx', cx);
+    rim.setAttribute('cy', cy);
+    rim.setAttribute('r', r);
+    rim.setAttribute('fill', 'none');
+    rim.setAttribute('stroke', '#c6a46a');
+    rim.setAttribute('stroke-width', '5');
+    wheel.appendChild(rim);
+
+    function playChime(){
+      try{
+        const AudioContext = window.AudioContext || window.webkitAudioContext;
+        const ctx = new AudioContext();
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(660, ctx.currentTime);
+        gain.gain.setValueAtTime(.0001, ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(.12, ctx.currentTime + .02);
+        gain.gain.exponentialRampToValueAtTime(.0001, ctx.currentTime + .55);
+
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start();
+        osc.stop(ctx.currentTime + .6);
+      }catch(e){}
+    }
+
+    function burst(){
+      confetti.innerHTML = '';
+      for(let i = 0; i < 32; i++){
+        const el = document.createElement('i');
+        el.style.left = Math.random() * 100 + 'vw';
+        el.style.setProperty('--x', (Math.random() * 160 - 80) + 'px');
+        el.style.setProperty('--r', (Math.random() * 720 - 360) + 'deg');
+        el.style.animationDelay = (Math.random() * .25) + 's';
+        el.style.background = i % 3 === 0 ? '#c6a46a' : (i % 3 === 1 ? '#8f7b6d' : '#eadbc5');
+        confetti.appendChild(el);
+      }
+      setTimeout(() => confetti.innerHTML = '', 2300);
+    }
+
+    function prizeIndex(){
+      return Math.random() < .9 ? 1 + Math.floor(Math.random() * 9) : 0;
+    }
+
+    spinBtn.addEventListener('click', () => {
+      if(spinning) return;
+
+      spinning = true;
+      spinBtn.disabled = true;
+
+      const idx = prizeIndex();
+      const center = idx * slice + slice / 2;
+      const normalized = ((rotation % 360) + 360) % 360;
+      const target = 360 - center;
+      const delta = (6 + Math.floor(Math.random() * 3)) * 360 + ((target - normalized + 360) % 360);
+
+      rotation += delta;
+      wheel.style.transform = `rotate(${rotation}deg)`;
+
+      setTimeout(() => {
+        amount.textContent = '$' + prizes[idx];
+        sent.checked = false;
+        nextBtn.disabled = true;
+        show(result);
+        playChime();
+        burst();
+        spinning = false;
+      }, 5500);
+    });
+
+    sent.addEventListener('change', () => {
+      nextBtn.disabled = !sent.checked;
+    });
+
+    nextBtn.addEventListener('click', () => {
+      spinBtn.disabled = false;
+      show(login);
+      pw.focus();
+    });
+  </script>
 </body>
 </html>
