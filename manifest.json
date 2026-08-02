@@ -1,9 +1,9 @@
 {
-  "name": "FINUS 週年驚喜抽",
+  "name": "FINUS Lucky Draw Pro",
   "short_name": "FINUS 抽獎",
   "start_url": "./",
   "display": "standalone",
-  "background_color": "#f6f0e8",
-  "theme_color": "#f6f0e8",
+  "background_color": "#f5efe7",
+  "theme_color": "#f5efe7",
   "lang": "zh-Hant"
 }
