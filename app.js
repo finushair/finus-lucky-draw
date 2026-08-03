@@ -111,11 +111,43 @@ function applySettings(){
 }
 
 function visibleSegments(){
-  const out=[];
-  data.prizes.forEach(prize=>{
-    for(let i=0;i<Math.max(0,Number(prize.displayCount)||0);i++) out.push(prize);
-  });
-  return out;
+  const pool=data.prizes
+    .filter(prize=>Number(prize.displayCount)>0)
+    .map(prize=>({prize,count:Math.max(0,Number(prize.displayCount)||0)}));
+
+  const total=pool.reduce((sum,item)=>sum+item.count,0);
+  if(!total) return [];
+
+  // 讓不同獎項盡量平均打散，不把相同獎項全部擠在一起。
+  const result=[];
+  let lastId=null;
+
+  while(result.length<total){
+    const candidates=pool
+      .filter(item=>item.count>0)
+      .sort((a,b)=>{
+        if(a.prize.id===lastId && b.prize.id!==lastId) return 1;
+        if(b.prize.id===lastId && a.prize.id!==lastId) return -1;
+        if(a.prize.eligible!==b.prize.eligible) return a.prize.eligible?-1:1;
+        return b.count-a.count;
+      });
+
+    const next=candidates[0];
+    if(!next) break;
+    result.push(next.prize);
+    next.count--;
+    lastId=next.prize.id;
+  }
+
+  // 將僅展示的大獎盡量安排在接近 11 點鐘方向，視覺更有記憶點。
+  const showcaseIndex=result.findIndex(prize=>!prize.eligible && Number(prize.displayCount)>0);
+  if(showcaseIndex>=0 && result.length>=8){
+    const targetIndex=Math.max(0,Math.round(result.length*0.90)%result.length);
+    const [showcase]=result.splice(showcaseIndex,1);
+    result.splice(targetIndex,0,showcase);
+  }
+
+  return result;
 }
 
 function todayKey(){
@@ -180,6 +212,7 @@ function drawWheel(){
   svg.innerHTML='';
   const segments=visibleSegments();
   if(!segments.length) return;
+
   const slice=360/segments.length;
 
   segments.forEach((prize,index)=>{
@@ -191,22 +224,40 @@ function drawWheel(){
     path.setAttribute('d',arcPath(start,end));
     path.setAttribute('fill',palette[prize.color]||palette.milk);
     path.setAttribute('stroke','#cdbdad');
-    path.setAttribute('stroke-width','1.2');
+    path.setAttribute('stroke-width','1.15');
+    if(prize.special) path.classList.add('featured-segment');
     svg.appendChild(path);
 
+    // 文字永遠保持正向閱讀，避免下半圈倒著看。
     const point=polar(middle,154);
     const text=document.createElementNS(NS,'text');
     text.setAttribute('x',point.x);
-    text.setAttribute('y',point.y+6);
+    text.setAttribute('y',point.y+7);
     text.setAttribute('text-anchor','middle');
+    text.setAttribute('dominant-baseline','middle');
     text.setAttribute('fill','#3d2e27');
     text.setAttribute('font-family','Georgia');
-    text.setAttribute('font-size',prize.name.length>9?'15':'22');
-    text.setAttribute('font-weight',prize.special?'700':'400');
-    text.setAttribute('transform',`rotate(${middle},${point.x},${point.y})`);
+    text.setAttribute('font-size',segments.length>=12?'18':segments.length>=10?'21':'24');
+    text.setAttribute('font-weight',prize.special?'700':'500');
+
+    let readableRotation=middle;
+    if(readableRotation>90 && readableRotation<270) readableRotation+=180;
+    text.setAttribute('transform',`rotate(${readableRotation},${point.x},${point.y})`);
+
+    if(prize.special) text.classList.add('featured-label');
+    if(!prize.eligible) text.classList.add('display-only-label');
     text.textContent=prize.name;
     svg.appendChild(text);
   });
+
+  const innerRing=document.createElementNS(NS,'circle');
+  innerRing.setAttribute('cx','250');
+  innerRing.setAttribute('cy','250');
+  innerRing.setAttribute('r','220');
+  innerRing.setAttribute('fill','none');
+  innerRing.setAttribute('stroke','rgba(143,102,54,.55)');
+  innerRing.setAttribute('stroke-width','3');
+  svg.appendChild(innerRing);
 }
 
 function visualIndexFor(prize){

@@ -1,4 +1,4 @@
-const CACHE_NAME='finus-lucky-draw-pro-3-cache-v1';
+const CACHE_NAME='finus-lucky-draw-pro-31-boutique-cache-v1';
 const ASSETS=['./','./index.html','./app.css','./app.js','./manifest.json'];
 self.addEventListener('install',event=>{
   event.waitUntil(caches.open(CACHE_NAME).then(cache=>cache.addAll(ASSETS)));
