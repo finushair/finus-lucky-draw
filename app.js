@@ -1,79 +1,787 @@
 
-const KEY='finusPro21',PREV='finusPro21Prev',STAFF='2026',ADMIN='jun0725';
-const colors={milk:'#eadfd2',cream:'#f4ece4',gold:'#d9bd8b',mocha:'#9b806f',blush:'#d9c3b9',sage:'#c8c9b7',stone:'#c8c0b8',ivory:'#fffaf3'};
+const STORAGE_KEY='finusLuckyDrawPro30';
+const PREVIOUS_KEY='finusLuckyDrawPro30Previous';
+const STAFF_PASSWORD='2026';
+const ADMIN_PASSWORD='jun0725';
+
+const palette={milk:'#eadfd2',cream:'#f4ece4',gold:'#d9bd8b',mocha:'#9b806f',blush:'#d9c3b9',sage:'#c8c9b7',stone:'#c8c0b8',ivory:'#fffaf3'};
+
 const defaults={
- enabled:true,start:'2026-09-15',end:'2026-10-31',expiry:'2026-12-10',
- texts:{hero:'週年驚喜抽',sub:'ANNIVERSARY LUCKY DRAW',staff:'店員解鎖',draw:'祝你好運',spin:'開始抽獎',note:'單次消費滿 $2,000，可獲得一次抽獎機會',result:'恭喜獲得',special:'今日幸運獎！',badge:'會員電子優惠券',footer:'每份驚喜，都是 FINUS 的心意。'},
- effects:{countdown:true,tick:true,sound:true,confetti:true,gold:true,vibration:false,logo:true,bg:true,quote:false,test:false},
- prizes:[
-  {id:'50',name:'$50',displayCount:6,prob:95,eligible:true,color:'milk',special:false,dailyMax:0,totalMax:0,guaranteeAfter:0},
-  {id:'100',name:'$100',displayCount:3,prob:5,eligible:true,color:'gold',special:true,dailyMax:0,totalMax:0,guaranteeAfter:0},
-  {id:'500',name:'$500',displayCount:1,prob:0,eligible:false,color:'mocha',special:true,dailyMax:0,totalMax:0,guaranteeAfter:0}
- ],
- quotes:['今天運氣不錯，記得保持帥氣。','換了新髮型，也帶走一點好運。','新的髮型，新的好運。'],
- records:[]
+  eventEnabled:true,
+  startDate:'2026-09-15',
+  endDate:'2026-10-31',
+  expiryDate:'2026-12-10',
+  texts:{
+    heroTitle:'週年驚喜抽',
+    heroSubtitle:'ANNIVERSARY LUCKY DRAW',
+    staffTitle:'店員解鎖',
+    drawTitle:'祝你好運',
+    spinButton:'開始抽獎',
+    drawNote:'單次消費滿 $2,000，即可獲得一次抽獎機會。',
+    resultTitle:'恭喜獲得',
+    specialTitle:'今日幸運獎！',
+    resultBadge:'會員電子優惠券',
+    footer:'每份驚喜，都是 FINUS 的心意。'
+  },
+  effects:{
+    countdown:true,tick:true,sound:true,confetti:true,gold:true,
+    vibration:false,logo:true,background:true,quote:false,test:false
+  },
+  prizes:[
+    {id:'p50',name:'$50',displayCount:6,probability:95,eligible:true,color:'milk',special:false,dailyMax:0,totalMax:0,guaranteeAfter:0},
+    {id:'p100',name:'$100',displayCount:3,probability:5,eligible:true,color:'gold',special:true,dailyMax:0,totalMax:0,guaranteeAfter:0},
+    {id:'p500',name:'$500',displayCount:1,probability:0,eligible:false,color:'mocha',special:true,dailyMax:0,totalMax:0,guaranteeAfter:0}
+  ],
+  quotes:[
+    '今天運氣不錯，記得保持帥氣。',
+    '換了新髮型，也帶走一點好運。',
+    '新的髮型，新的好運。'
+  ],
+  records:[]
 };
-const $=id=>document.getElementById(id),clone=x=>JSON.parse(JSON.stringify(x));
-function load(){try{let s=JSON.parse(localStorage.getItem(KEY)||'{}');return {...clone(defaults),...s,texts:{...defaults.texts,...(s.texts||{})},effects:{...defaults.effects,...(s.effects||{})},prizes:s.prizes?.length?s.prizes:clone(defaults.prizes),records:s.records||[]}}catch{return clone(defaults)}}
-let d=load(),rot=0,spinning=false,timer,adminTimer,taps=0,tapTimer;
-const screens={staff:$('staff'),draw:$('draw'),result:$('result'),admin:$('admin')};
-function save(backup=true){if(backup)localStorage.setItem(PREV,localStorage.getItem(KEY)||JSON.stringify(defaults));localStorage.setItem(KEY,JSON.stringify(d))}
-function show(n){Object.values(screens).forEach(x=>{x.classList.remove('active','entering')});screens[n].classList.add('active','entering');scrollTo({top:0,behavior:'smooth'})}
-function dateText(x){let a=x.split('-');return a[1]+'.'+a[2]}
-function apply(){heroTitle.textContent=d.texts.hero;heroSub.textContent=d.texts.sub;staffTitle.textContent=d.texts.staff;drawTitle.textContent=d.texts.draw;spin.textContent=d.texts.spin;drawNote.textContent=d.texts.note;resultBadge.textContent=d.texts.badge;footer.textContent=d.texts.footer;dates.textContent=dateText(d.start)+' — '+dateText(d.end);expiryText.textContent=d.expiry.replaceAll('-','/');document.body.classList.toggle('no-bg',!d.effects.bg);brand.classList.remove('animate');if(d.effects.logo)requestAnimationFrame(()=>brand.classList.add('animate'));drawWheel()}
-function visibleSegments(){let out=[];d.prizes.forEach(p=>{for(let i=0;i<Math.max(0,+p.displayCount||0);i++)out.push(p)});return out}
-function activeEligible(){return d.prizes.filter(p=>p.eligible&&+p.prob>0&&!capReached(p))}
-function polar(a,r=220){let x=(a-90)*Math.PI/180;return{x:250+r*Math.cos(x),y:250+r*Math.sin(x)}}function path(a,b){let p=polar(a),q=polar(b);return`M250 250 L${p.x} ${p.y} A220 220 0 0 1 ${q.x} ${q.y} Z`}
-function drawWheel(){wheel.innerHTML='';let a=visibleSegments();if(!a.length)return;let s=360/a.length,NS='http://www.w3.org/2000/svg';a.forEach((p,i)=>{let st=i*s,en=st+s,m=st+s/2,x=document.createElementNS(NS,'path');x.setAttribute('d',path(st,en));x.setAttribute('fill',colors[p.color]||colors.milk);x.setAttribute('stroke','#cdbdad');x.setAttribute('stroke-width','1.2');wheel.appendChild(x);let pt=polar(m,154),t=document.createElementNS(NS,'text');t.setAttribute('x',pt.x);t.setAttribute('y',pt.y+6);t.setAttribute('text-anchor','middle');t.setAttribute('fill','#3b2d26');t.setAttribute('font-family','Georgia');t.setAttribute('font-size',p.name.length>9?'15':'22');t.setAttribute('font-weight',p.special?'700':'400');t.setAttribute('transform',`rotate(${m},${pt.x},${pt.y})`);t.textContent=p.name;wheel.appendChild(t)})}
-function todayKey(){return new Date().toISOString().slice(0,10)}
-function countPrize(p,scope='all'){return d.records.filter(r=>r.prizeId===p.id&&(scope==='all'||r.date===todayKey())).length}
-function capReached(p){return (+p.dailyMax>0&&countPrize(p,'today')>=+p.dailyMax)||(+p.totalMax>0&&countPrize(p,'all')>=+p.totalMax)}
-function missesSince(p){let n=0;for(let i=d.records.length-1;i>=0;i--){if(d.records[i].prizeId===p.id)break;n++}return n}
-function pick(){let list=activeEligible();const guaranteed=list.filter(p=>+p.guaranteeAfter>0&&missesSince(p)>=+p.guaranteeAfter).sort((a,b)=>+b.guaranteeAfter-+a.guaranteeAfter);if(guaranteed.length)return guaranteed[0];let total=list.reduce((s,p)=>s+(+p.prob||0),0),r=Math.random()*total;for(let p of list){r-=+p.prob;if(r<=0)return p}return list.at(-1)}
-function idxFor(p){let a=visibleSegments(),m=a.map((x,i)=>x.id===p.id?i:-1).filter(i=>i>=0);return{idx:m[Math.floor(Math.random()*m.length)],count:a.length}}
-function tone(f=660,du=.6,v=.1){try{let A=AudioContext||webkitAudioContext,c=new A,o=c.createOscillator(),g=c.createGain();o.frequency.value=f;g.gain.setValueAtTime(.0001,c.currentTime);g.gain.exponentialRampToValueAtTime(v,c.currentTime+.02);g.gain.exponentialRampToValueAtTime(.0001,c.currentTime+du);o.connect(g);g.connect(c.destination);o.start();o.stop(c.currentTime+du+.05)}catch{}}
-function tick(){if(!d.effects.tick)return;pointer.classList.remove('tick');void pointer.offsetWidth;pointer.classList.add('tick');tone(310,.05,.025)}
-function ticks(){if(!d.effects.tick)return;let delay=70,e=0;const loop=()=>{tick();e+=delay;delay=Math.min(430,delay*1.12);if(e<5100)timer=setTimeout(loop,delay)};loop()}function stopTicks(){clearTimeout(timer)}
-function conf(s){if(!d.effects.confetti)return;confetti.innerHTML='';for(let i=0;i<(s?56:30);i++){let e=document.createElement('i');e.style.left=Math.random()*100+'vw';e.style.setProperty('--x',(Math.random()*190-95)+'px');e.style.setProperty('--r',(Math.random()*720-360)+'deg');e.style.animationDelay=(Math.random()*.25)+'s';e.style.background=i%3==0?'#c5a063':i%3==1?'#8e7a6c':'#eadbc4';confetti.appendChild(e)}setTimeout(()=>confetti.innerHTML='',2400)}
-function countdownRun(){if(!d.effects.countdown)return Promise.resolve();return new Promise(res=>{let a=['3','2','1'],i=0,s=countdown.querySelector('span');countdown.classList.add('show');const step=()=>{s.textContent=a[i];s.style.animation='none';void s.offsetWidth;s.style.animation='pop .75s';i++;if(i<a.length)setTimeout(step,760);else setTimeout(()=>{countdown.classList.remove('show');res()},760)};step()})}
-function valid(){let display=d.prizes.reduce((a,p)=>a+(+p.displayCount||0),0);let prob=d.prizes.filter(p=>p.eligible).reduce((a,p)=>a+(+p.prob||0),0);if(d.prizes.length<2)return'至少保留兩個獎項';if(display<8||display>12)return'顯示總格數必須是 8～12 格';if(Math.abs(prob-100)>.001)return'可中獎獎項的機率總和必須等於 100%';if(!d.prizes.some(p=>p.eligible&&+p.prob>0))return'至少要有一個可中獎獎項';if(d.start>d.end)return'開始日不能晚於結束日';if(d.expiry<d.end)return'優惠券期限不能早於活動結束日';return''}
-staffLogin.onclick=()=>{if(!d.enabled){staffMsg.textContent='活動目前未開放';return}if(staffPw.value===STAFF){staffPw.value='';staffMsg.textContent='';show('draw')}else staffMsg.textContent='密碼錯誤'};staffPw.onkeydown=e=>{if(e.key==='Enter')staffLogin.click()}
-spin.onclick=async()=>{if(spinning)return;let p=pick();if(!p){alert('目前沒有可抽出的獎項，請管理者檢查設定。');return}spinning=true;spin.disabled=true;await countdownRun();let x=idxFor(p),s=360/x.count,c=x.idx*s+s/2,cur=((rot%360)+360)%360,target=360-c;rot+=(7+Math.floor(Math.random()*2))*360+((target-cur+360)%360);ticks();wheel.style.transform=`rotate(${rot}deg)`;setTimeout(()=>{stopTicks();resultPrize.textContent=p.name;resultTitle.textContent=p.special?d.texts.special:d.texts.result;resultKicker.textContent=p.special?'LUCKY PRIZE':'CONGRATULATIONS';result.classList.toggle('special',p.special&&d.effects.gold);if(d.effects.quote){quote.hidden=false;quote.textContent=d.quotes[Math.floor(Math.random()*d.quotes.length)]}else quote.hidden=true;if(!d.effects.test){d.records.push({time:new Date().toISOString(),date:todayKey(),prizeId:p.id,name:p.name});save(false)}if(d.effects.vibration&&navigator.vibrate)navigator.vibrate(p.special?[70,50,130]:60);if(d.effects.sound)tone(p.special?880:660,.65,.12);conf(p.special);sent.checked=false;next.disabled=true;show('result');spinning=false},5600)}
-sent.onchange=()=>next.disabled=!sent.checked;next.onclick=()=>{spin.disabled=false;show('staff')}
-logo.onclick=()=>{taps++;clearTimeout(tapTimer);tapTimer=setTimeout(()=>taps=0,900);if(taps>=3){taps=0;adminPw.value='';adminLoginMsg.textContent='';adminDialog.showModal()}}
-adminCancel.onclick=()=>adminDialog.close();adminLogin.onclick=()=>{if(adminPw.value===ADMIN){adminDialog.close();fill();show('admin');resetTimer()}else adminLoginMsg.textContent='管理者密碼錯誤'}
-function resetTimer(){clearTimeout(adminTimer);adminTimer=setTimeout(()=>{if(admin.classList.contains('active')){show('staff');alert('管理後台已自動登出')}},300000)}
-document.addEventListener('click',()=>{if(admin.classList.contains('active'))resetTimer()})
-document.querySelectorAll('.tabs button').forEach(b=>b.onclick=()=>{document.querySelectorAll('.tabs button,.pane').forEach(x=>x.classList.remove('active'));b.classList.add('active');document.querySelector(`[data-pane="${b.dataset.tab}"]`).classList.add('active')})
-function summary(r){let c={};r.forEach(x=>c[x.name]=(c[x.name]||0)+1);return c}
-function fill(){let now=new Date(),day=todayKey(),monday=new Date(now);monday.setDate(now.getDate()-((now.getDay()+6)%7));monday.setHours(0,0,0,0);today.textContent=d.records.filter(x=>x.date===day).length;week.textContent=d.records.filter(x=>new Date(x.time)>=monday).length;total.textContent=d.records.length;prizeStats.innerHTML='';let c=summary(d.records);d.prizes.forEach(p=>{let a=document.createElement('article');a.innerHTML=`<span>${p.name}</span><b>${c[p.name]||0}</b>`;prizeStats.appendChild(a)});startDate.value=d.start;endDate.value=d.end;expiryDate.value=d.expiry;enabled.checked=d.enabled;
-[tHero,tSub,tStaff,tDraw,tSpin,tNote,tResult,tSpecial,tBadge,tFooter].forEach((e,i)=>e.value=[d.texts.hero,d.texts.sub,d.texts.staff,d.texts.draw,d.texts.spin,d.texts.note,d.texts.result,d.texts.special,d.texts.badge,d.texts.footer][i]);
-[eCountdown,eTick,eSound,eConfetti,eGold,eVibration,eLogo,eBg,eQuote,eTest].forEach((e,i)=>e.checked=[d.effects.countdown,d.effects.tick,d.effects.sound,d.effects.confetti,d.effects.gold,d.effects.vibration,d.effects.logo,d.effects.bg,d.effects.quote,d.effects.test][i]);renderPrizes()}
-function renderPrizes(){prizeEditor.innerHTML='';d.prizes.forEach((p,i)=>{let r=document.createElement('div');r.className='prize-row';r.innerHTML=`
-<label>名稱<input class="pn" data-i="${i}" value="${p.name}"></label>
-<label>顯示格數<input class="pd" data-i="${i}" type="number" min="0" max="12" value="${p.displayCount}"></label>
-<label>真實機率 %<input class="pp" data-i="${i}" type="number" min="0" max="100" step=".1" value="${p.prob}"></label>
-<label>顏色<select class="pc" data-i="${i}">${Object.keys(colors).map(c=>`<option ${c===p.color?'selected':''}>${c}</option>`).join('')}</select></label>
-<label class="switch half">可中獎<input class="pe" data-i="${i}" type="checkbox" ${p.eligible?'checked':''}></label>
-<label class="switch half">特別獎<input class="ps" data-i="${i}" type="checkbox" ${p.special?'checked':''}></label>
-<label>每日最多（0=不限）<input class="pdm" data-i="${i}" type="number" min="0" value="${p.dailyMax||0}"></label>
-<label>活動最多（0=不限）<input class="ptm" data-i="${i}" type="number" min="0" value="${p.totalMax||0}"></label>
-<label class="half">保底：連續幾次未中後強制中（0=關閉）<input class="pga" data-i="${i}" type="number" min="0" value="${p.guaranteeAfter||0}"></label>
-<button class="danger remove" data-i="${i}">刪除</button>`;prizeEditor.appendChild(r)});prizeEditor.querySelectorAll('input,select').forEach(e=>{e.oninput=sync;e.onchange=sync});prizeEditor.querySelectorAll('.remove').forEach(b=>b.onclick=()=>{if(d.prizes.length<=2)return alert('至少保留兩個獎項');if(confirm('確定刪除？')){d.prizes.splice(+b.dataset.i,1);renderPrizes()}});totalsUpdate()}
-function sync(){document.querySelectorAll('.pn').forEach(e=>d.prizes[+e.dataset.i].name=e.value);document.querySelectorAll('.pd').forEach(e=>d.prizes[+e.dataset.i].displayCount=+e.value||0);document.querySelectorAll('.pp').forEach(e=>d.prizes[+e.dataset.i].prob=+e.value||0);document.querySelectorAll('.pc').forEach(e=>d.prizes[+e.dataset.i].color=e.value);document.querySelectorAll('.pe').forEach(e=>d.prizes[+e.dataset.i].eligible=e.checked);document.querySelectorAll('.ps').forEach(e=>d.prizes[+e.dataset.i].special=e.checked);document.querySelectorAll('.pdm').forEach(e=>d.prizes[+e.dataset.i].dailyMax=+e.value||0);document.querySelectorAll('.ptm').forEach(e=>d.prizes[+e.dataset.i].totalMax=+e.value||0);document.querySelectorAll('.pga').forEach(e=>d.prizes[+e.dataset.i].guaranteeAfter=+e.value||0);totalsUpdate()}
-function totalsUpdate(){let ds=d.prizes.reduce((a,p)=>a+(+p.displayCount||0),0),ps=d.prizes.filter(p=>p.eligible).reduce((a,p)=>a+(+p.prob||0),0);displayTotal.textContent=ds+' 格';displayTotal.style.color=ds>=8&&ds<=12?'#3b2d26':'#9e4e45';probTotal.textContent=ps+'%';probTotal.style.color=Math.abs(ps-100)<.001?'#3b2d26':'#9e4e45'}
-addPrize.onclick=()=>{d.prizes.push({id:'p'+Date.now(),name:'新獎項',displayCount:1,prob:0,eligible:false,color:'cream',special:false,dailyMax:0,totalMax:0,guaranteeAfter:0});renderPrizes()}
-saveStats.onclick=()=>{d.start=startDate.value;d.end=endDate.value;d.expiry=expiryDate.value;d.enabled=enabled.checked;let e=valid();if(e)return adminMsg.textContent=e;save();apply();adminMsg.textContent='活動設定已儲存'}
-savePrizes.onclick=()=>{sync();let e=valid();if(e)return adminMsg.textContent=e;save();drawWheel();fill();adminMsg.textContent='獎項已儲存'}
-saveText.onclick=()=>{d.texts={hero:tHero.value,sub:tSub.value,staff:tStaff.value,draw:tDraw.value,spin:tSpin.value,note:tNote.value,result:tResult.value,special:tSpecial.value,badge:tBadge.value,footer:tFooter.value};save();apply();adminMsg.textContent='文字已儲存'}
-saveEffects.onclick=()=>{d.effects={countdown:eCountdown.checked,tick:eTick.checked,sound:eSound.checked,confetti:eConfetti.checked,gold:eGold.checked,vibration:eVibration.checked,logo:eLogo.checked,bg:eBg.checked,quote:eQuote.checked,test:eTest.checked};save();apply();adminMsg.textContent='特效已儲存'}
-function dl(n,t,type){let b=new Blob([t],{type}),u=URL.createObjectURL(b),a=document.createElement('a');a.href=u;a.download=n;a.click();URL.revokeObjectURL(u)}
-csv.onclick=()=>dl('FINUS-抽獎紀錄.csv','\ufeff'+[['日期','時間','獎項'],...d.records.map(x=>[x.date,new Date(x.time).toLocaleTimeString('zh-TW'),x.name])].map(r=>r.map(v=>`"${v}"`).join(',')).join('\n'),'text/csv')
-jsonOut.onclick=()=>dl('FINUS-設定.json',JSON.stringify(d,null,2),'application/json')
-jsonIn.onchange=async e=>{try{localStorage.setItem(PREV,JSON.stringify(d));d=JSON.parse(await e.target.files[0].text());save(false);apply();fill();adminMsg.textContent='匯入完成'}catch{adminMsg.textContent='JSON 格式錯誤'}}
-restore.onclick=()=>{let p=localStorage.getItem(PREV);if(!p)return alert('沒有上一版');if(confirm('確定還原？')){d=JSON.parse(p);save(false);apply();fill()}}
-resetToday.onclick=()=>{if(confirm('重設今日統計？')){let x=todayKey();d.records=d.records.filter(r=>r.date!==x);save(false);fill()}}
-resetAll.onclick=()=>{if(confirm('清除全部統計？')){d.records=[];save(false);fill()}}
-defaults.onclick=()=>{if(confirm('恢復 FINUS 預設？')){localStorage.setItem(PREV,JSON.stringify(d));d=clone(defaults);save(false);apply();fill()}}
-logout.onclick=()=>{clearTimeout(adminTimer);show('staff')}
-apply();if('serviceWorker'in navigator)addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(()=>{}))
+
+const $=id=>document.getElementById(id);
+const clone=value=>JSON.parse(JSON.stringify(value));
+
+function loadData(){
+  try{
+    const saved=JSON.parse(localStorage.getItem(STORAGE_KEY)||'{}');
+    return {
+      ...clone(defaults),
+      ...saved,
+      texts:{...defaults.texts,...(saved.texts||{})},
+      effects:{...defaults.effects,...(saved.effects||{})},
+      prizes:Array.isArray(saved.prizes)&&saved.prizes.length?saved.prizes:clone(defaults.prizes),
+      quotes:Array.isArray(saved.quotes)&&saved.quotes.length?saved.quotes:clone(defaults.quotes),
+      records:Array.isArray(saved.records)?saved.records:[]
+    };
+  }catch{
+    return clone(defaults);
+  }
+}
+
+let data=loadData();
+let rotation=0;
+let spinning=false;
+let tickTimer;
+let adminTimer;
+let tapCount=0;
+let tapTimer;
+
+const screens={
+  staff:$('staffScreen'),
+  draw:$('drawScreen'),
+  result:$('resultScreen'),
+  admin:$('adminScreen')
+};
+
+function saveData(backup=true){
+  if(backup){
+    localStorage.setItem(PREVIOUS_KEY,localStorage.getItem(STORAGE_KEY)||JSON.stringify(defaults));
+  }
+  localStorage.setItem(STORAGE_KEY,JSON.stringify(data));
+}
+
+function showScreen(name){
+  Object.values(screens).forEach(el=>el.classList.remove('active'));
+  screens[name].classList.add('active');
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function dateLabel(iso){
+  const [y,m,d]=iso.split('-');
+  return `${m}.${d}`;
+}
+
+function applySettings(){
+  $('heroTitle').textContent=data.texts.heroTitle;
+  $('heroSubtitle').textContent=data.texts.heroSubtitle;
+  $('staffTitle').textContent=data.texts.staffTitle;
+  $('drawTitle').textContent=data.texts.drawTitle;
+  $('spinBtn').textContent=data.texts.spinButton;
+  $('drawNote').textContent=data.texts.drawNote;
+  $('resultBadge').textContent=data.texts.resultBadge;
+  $('footerText').textContent=data.texts.footer;
+  $('eventDates').textContent=`${dateLabel(data.startDate)} — ${dateLabel(data.endDate)}`;
+  $('expiryText').textContent=data.expiryDate.replaceAll('-','/');
+  document.body.classList.toggle('no-bg',!data.effects.background);
+  $('brand').classList.remove('animate');
+  if(data.effects.logo) requestAnimationFrame(()=>$('brand').classList.add('animate'));
+  drawWheel();
+}
+
+function visibleSegments(){
+  const out=[];
+  data.prizes.forEach(prize=>{
+    for(let i=0;i<Math.max(0,Number(prize.displayCount)||0);i++) out.push(prize);
+  });
+  return out;
+}
+
+function todayKey(){
+  return new Date().toISOString().slice(0,10);
+}
+
+function countPrize(prize,scope='all'){
+  return data.records.filter(record=>{
+    if(record.prizeId!==prize.id) return false;
+    return scope==='all'||record.date===todayKey();
+  }).length;
+}
+
+function capReached(prize){
+  return (Number(prize.dailyMax)>0&&countPrize(prize,'today')>=Number(prize.dailyMax))
+    ||(Number(prize.totalMax)>0&&countPrize(prize,'all')>=Number(prize.totalMax));
+}
+
+function missesSince(prize){
+  let misses=0;
+  for(let i=data.records.length-1;i>=0;i--){
+    if(data.records[i].prizeId===prize.id) break;
+    misses++;
+  }
+  return misses;
+}
+
+function activeEligiblePrizes(){
+  return data.prizes.filter(prize=>prize.eligible&&Number(prize.probability)>0&&!capReached(prize));
+}
+
+function choosePrize(){
+  const active=activeEligiblePrizes();
+  const guaranteed=active
+    .filter(prize=>Number(prize.guaranteeAfter)>0&&missesSince(prize)>=Number(prize.guaranteeAfter))
+    .sort((a,b)=>Number(b.guaranteeAfter)-Number(a.guaranteeAfter));
+  if(guaranteed.length) return guaranteed[0];
+
+  const total=active.reduce((sum,p)=>sum+Number(p.probability||0),0);
+  let roll=Math.random()*total;
+  for(const prize of active){
+    roll-=Number(prize.probability||0);
+    if(roll<=0) return prize;
+  }
+  return active.at(-1);
+}
+
+const NS='http://www.w3.org/2000/svg';
+
+function polar(angle,radius=220){
+  const rad=(angle-90)*Math.PI/180;
+  return {x:250+radius*Math.cos(rad),y:250+radius*Math.sin(rad)};
+}
+
+function arcPath(start,end){
+  const a=polar(start),b=polar(end);
+  return `M250 250 L${a.x} ${a.y} A220 220 0 0 1 ${b.x} ${b.y} Z`;
+}
+
+function drawWheel(){
+  const svg=$('wheelSvg');
+  svg.innerHTML='';
+  const segments=visibleSegments();
+  if(!segments.length) return;
+  const slice=360/segments.length;
+
+  segments.forEach((prize,index)=>{
+    const start=index*slice;
+    const end=start+slice;
+    const middle=start+slice/2;
+
+    const path=document.createElementNS(NS,'path');
+    path.setAttribute('d',arcPath(start,end));
+    path.setAttribute('fill',palette[prize.color]||palette.milk);
+    path.setAttribute('stroke','#cdbdad');
+    path.setAttribute('stroke-width','1.2');
+    svg.appendChild(path);
+
+    const point=polar(middle,154);
+    const text=document.createElementNS(NS,'text');
+    text.setAttribute('x',point.x);
+    text.setAttribute('y',point.y+6);
+    text.setAttribute('text-anchor','middle');
+    text.setAttribute('fill','#3d2e27');
+    text.setAttribute('font-family','Georgia');
+    text.setAttribute('font-size',prize.name.length>9?'15':'22');
+    text.setAttribute('font-weight',prize.special?'700':'400');
+    text.setAttribute('transform',`rotate(${middle},${point.x},${point.y})`);
+    text.textContent=prize.name;
+    svg.appendChild(text);
+  });
+}
+
+function visualIndexFor(prize){
+  const segments=visibleSegments();
+  const matches=segments.map((p,i)=>p.id===prize.id?i:-1).filter(i=>i>=0);
+  return {index:matches[Math.floor(Math.random()*matches.length)],count:segments.length};
+}
+
+function playTone(freq=660,duration=.6,volume=.1){
+  try{
+    const AC=window.AudioContext||window.webkitAudioContext;
+    const ctx=new AC();
+    const osc=ctx.createOscillator();
+    const gain=ctx.createGain();
+    osc.frequency.value=freq;
+    gain.gain.setValueAtTime(.0001,ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(volume,ctx.currentTime+.02);
+    gain.gain.exponentialRampToValueAtTime(.0001,ctx.currentTime+duration);
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    osc.start();
+    osc.stop(ctx.currentTime+duration+.05);
+  }catch{}
+}
+
+function pointerTick(){
+  if(!data.effects.tick) return;
+  $('pointer').classList.remove('tick');
+  void $('pointer').offsetWidth;
+  $('pointer').classList.add('tick');
+  playTone(310,.05,.025);
+}
+
+function startTicks(){
+  if(!data.effects.tick) return;
+  let delay=70;
+  let elapsed=0;
+  const loop=()=>{
+    pointerTick();
+    elapsed+=delay;
+    delay=Math.min(430,delay*1.12);
+    if(elapsed<5100) tickTimer=setTimeout(loop,delay);
+  };
+  loop();
+}
+
+function stopTicks(){
+  clearTimeout(tickTimer);
+}
+
+function runCountdown(){
+  if(!data.effects.countdown) return Promise.resolve();
+  return new Promise(resolve=>{
+    const overlay=$('countdownOverlay');
+    const span=overlay.querySelector('span');
+    const values=['3','2','1'];
+    let index=0;
+    overlay.classList.add('show');
+
+    const step=()=>{
+      span.textContent=values[index];
+      span.style.animation='none';
+      void span.offsetWidth;
+      span.style.animation='pop .75s';
+      index++;
+      if(index<values.length){
+        setTimeout(step,760);
+      }else{
+        setTimeout(()=>{
+          overlay.classList.remove('show');
+          resolve();
+        },760);
+      }
+    };
+    step();
+  });
+}
+
+function launchConfetti(special){
+  if(!data.effects.confetti) return;
+  const layer=$('confettiLayer');
+  layer.innerHTML='';
+  const count=special?56:30;
+  for(let i=0;i<count;i++){
+    const bit=document.createElement('i');
+    bit.style.left=Math.random()*100+'vw';
+    bit.style.setProperty('--x',(Math.random()*190-95)+'px');
+    bit.style.setProperty('--r',(Math.random()*720-360)+'deg');
+    bit.style.animationDelay=(Math.random()*.25)+'s';
+    bit.style.background=i%3===0?'#c5a063':i%3===1?'#8e7a6c':'#eadbc4';
+    layer.appendChild(bit);
+  }
+  setTimeout(()=>layer.innerHTML='',2400);
+}
+
+function validate(){
+  const displayTotal=data.prizes.reduce((sum,p)=>sum+Number(p.displayCount||0),0);
+  const probTotal=data.prizes.filter(p=>p.eligible).reduce((sum,p)=>sum+Number(p.probability||0),0);
+  if(data.prizes.length<2) return '至少保留兩個獎項。';
+  if(displayTotal<8||displayTotal>12) return '顯示總格數必須是 8～12 格。';
+  if(Math.abs(probTotal-100)>.001) return '可中獎獎項的機率總和必須等於 100%。';
+  if(!data.prizes.some(p=>p.eligible&&Number(p.probability)>0)) return '至少要有一個可中獎獎項。';
+  if(data.startDate>data.endDate) return '活動開始日不能晚於結束日。';
+  if(data.expiryDate<data.endDate) return '優惠券期限不能早於活動結束日。';
+  return '';
+}
+
+$('staffLoginBtn').onclick=()=>{
+  if(!data.eventEnabled){
+    $('staffMessage').textContent='活動目前未開放。';
+    return;
+  }
+  if($('staffPassword').value===STAFF_PASSWORD){
+    $('staffPassword').value='';
+    $('staffMessage').textContent='';
+    showScreen('draw');
+  }else{
+    $('staffMessage').textContent='密碼錯誤。';
+  }
+};
+
+$('staffPassword').onkeydown=e=>{
+  if(e.key==='Enter') $('staffLoginBtn').click();
+};
+
+$('spinBtn').onclick=async()=>{
+  if(spinning) return;
+
+  const prize=choosePrize();
+  if(!prize){
+    alert('目前沒有可抽出的獎項，請管理者檢查機率或上限設定。');
+    return;
+  }
+
+  spinning=true;
+  $('spinBtn').disabled=true;
+  await runCountdown();
+
+  const segment=visualIndexFor(prize);
+  const slice=360/segment.count;
+  const center=segment.index*slice+slice/2;
+  const current=((rotation%360)+360)%360;
+  const target=360-center;
+  rotation+=(7+Math.floor(Math.random()*2))*360+((target-current+360)%360);
+
+  startTicks();
+  $('wheelSvg').style.transform=`rotate(${rotation}deg)`;
+
+  setTimeout(()=>{
+    stopTicks();
+
+    $('resultPrize').textContent=prize.name;
+    $('resultTitle').textContent=prize.special?data.texts.specialTitle:data.texts.resultTitle;
+    $('resultEyebrow').textContent=prize.special?'LUCKY PRIZE':'CONGRATULATIONS';
+    $('resultScreen').classList.toggle('special',prize.special&&data.effects.gold);
+
+    if(data.effects.quote){
+      $('luckyQuote').hidden=false;
+      $('luckyQuote').textContent=data.quotes[Math.floor(Math.random()*data.quotes.length)];
+    }else{
+      $('luckyQuote').hidden=true;
+    }
+
+    if(!data.effects.test){
+      data.records.push({
+        time:new Date().toISOString(),
+        date:todayKey(),
+        prizeId:prize.id,
+        prizeName:prize.name
+      });
+      saveData(false);
+    }
+
+    if(data.effects.vibration&&navigator.vibrate){
+      navigator.vibrate(prize.special?[70,50,130]:60);
+    }
+    if(data.effects.sound){
+      playTone(prize.special?880:660,.65,.12);
+    }
+
+    launchConfetti(prize.special);
+    $('couponSent').checked=false;
+    $('nextBtn').disabled=true;
+    showScreen('result');
+    spinning=false;
+  },5600);
+};
+
+$('couponSent').onchange=()=>{
+  $('nextBtn').disabled=!$('couponSent').checked;
+};
+
+$('nextBtn').onclick=()=>{
+  $('spinBtn').disabled=false;
+  showScreen('staff');
+};
+
+$('logoTap').onclick=()=>{
+  tapCount++;
+  clearTimeout(tapTimer);
+  tapTimer=setTimeout(()=>tapCount=0,900);
+
+  if(tapCount>=3){
+    tapCount=0;
+    $('adminPassword').value='';
+    $('adminLoginMessage').textContent='';
+    $('adminDialog').showModal();
+  }
+};
+
+$('adminCancelBtn').onclick=()=>$('adminDialog').close();
+
+$('adminLoginBtn').onclick=()=>{
+  if($('adminPassword').value===ADMIN_PASSWORD){
+    $('adminDialog').close();
+    fillAdmin();
+    showScreen('admin');
+    resetAdminTimer();
+  }else{
+    $('adminLoginMessage').textContent='管理者密碼錯誤。';
+  }
+};
+
+function resetAdminTimer(){
+  clearTimeout(adminTimer);
+  adminTimer=setTimeout(()=>{
+    if($('adminScreen').classList.contains('active')){
+      showScreen('staff');
+      alert('管理後台已自動登出。');
+    }
+  },300000);
+}
+
+document.addEventListener('click',()=>{
+  if($('adminScreen').classList.contains('active')) resetAdminTimer();
+});
+
+document.querySelectorAll('.tab').forEach(button=>{
+  button.onclick=()=>{
+    document.querySelectorAll('.tab,.pane').forEach(el=>el.classList.remove('active'));
+    button.classList.add('active');
+    document.querySelector(`[data-pane="${button.dataset.tab}"]`).classList.add('active');
+  };
+});
+
+function summarize(records){
+  const counts={};
+  records.forEach(record=>counts[record.prizeName]=(counts[record.prizeName]||0)+1);
+  return counts;
+}
+
+function fillAdmin(){
+  const today=todayKey();
+  const now=new Date();
+  const monday=new Date(now);
+  monday.setDate(now.getDate()-((now.getDay()+6)%7));
+  monday.setHours(0,0,0,0);
+
+  $('todayTotal').textContent=data.records.filter(r=>r.date===today).length;
+  $('weekTotal').textContent=data.records.filter(r=>new Date(r.time)>=monday).length;
+  $('allTotal').textContent=data.records.length;
+
+  $('prizeStats').innerHTML='';
+  const counts=summarize(data.records);
+  data.prizes.forEach(prize=>{
+    const article=document.createElement('article');
+    article.innerHTML=`<span>${prize.name}</span><strong>${counts[prize.name]||0}</strong>`;
+    $('prizeStats').appendChild(article);
+  });
+
+  $('startDate').value=data.startDate;
+  $('endDate').value=data.endDate;
+  $('expiryDate').value=data.expiryDate;
+  $('eventEnabled').checked=data.eventEnabled;
+
+  const textMap={
+    textHeroTitle:'heroTitle',
+    textHeroSubtitle:'heroSubtitle',
+    textStaffTitle:'staffTitle',
+    textDrawTitle:'drawTitle',
+    textSpinButton:'spinButton',
+    textDrawNote:'drawNote',
+    textResultTitle:'resultTitle',
+    textSpecialTitle:'specialTitle',
+    textResultBadge:'resultBadge',
+    textFooter:'footer'
+  };
+  Object.entries(textMap).forEach(([id,key])=>$(id).value=data.texts[key]);
+
+  const effectMap={
+    effectCountdown:'countdown',
+    effectTick:'tick',
+    effectSound:'sound',
+    effectConfetti:'confetti',
+    effectGold:'gold',
+    effectVibration:'vibration',
+    effectLogo:'logo',
+    effectBackground:'background',
+    effectQuote:'quote',
+    effectTest:'test'
+  };
+  Object.entries(effectMap).forEach(([id,key])=>$(id).checked=data.effects[key]);
+
+  renderPrizeEditor();
+}
+
+function renderPrizeEditor(){
+  const editor=$('prizeEditor');
+  editor.innerHTML='';
+
+  data.prizes.forEach((prize,index)=>{
+    const card=document.createElement('div');
+    card.className='prize-card';
+    card.innerHTML=`
+      <div class="prize-grid">
+        <label>獎項名稱<input class="p-name" data-i="${index}" value="${prize.name.replaceAll('"','&quot;')}"></label>
+        <label>顯示格數<input class="p-display" data-i="${index}" type="number" min="0" max="12" value="${prize.displayCount}"></label>
+        <label>真實機率 %<input class="p-probability" data-i="${index}" type="number" min="0" max="100" step=".1" value="${prize.probability}"></label>
+        <label>顏色<select class="p-color" data-i="${index}">
+          ${Object.keys(palette).map(color=>`<option value="${color}" ${color===prize.color?'selected':''}>${color}</option>`).join('')}
+        </select></label>
+      </div>
+      <div class="prize-flags">
+        <label class="switch-row">可中獎<input class="p-eligible" data-i="${index}" type="checkbox" ${prize.eligible?'checked':''}></label>
+        <label class="switch-row">特別獎<input class="p-special" data-i="${index}" type="checkbox" ${prize.special?'checked':''}></label>
+      </div>
+      <div class="prize-limits">
+        <label>每日最多（0＝不限）<input class="p-daily" data-i="${index}" type="number" min="0" value="${prize.dailyMax||0}"></label>
+        <label>活動最多（0＝不限）<input class="p-total" data-i="${index}" type="number" min="0" value="${prize.totalMax||0}"></label>
+        <label>保底間隔（0＝關閉）<input class="p-guarantee" data-i="${index}" type="number" min="0" value="${prize.guaranteeAfter||0}"></label>
+      </div>
+      <div class="prize-actions">
+        <button class="btn secondary move-up" data-i="${index}" type="button">上移</button>
+        <button class="btn secondary move-down" data-i="${index}" type="button">下移</button>
+        <button class="btn danger remove-prize" data-i="${index}" type="button">刪除</button>
+      </div>
+    `;
+    editor.appendChild(card);
+  });
+
+  editor.querySelectorAll('input,select').forEach(el=>{
+    el.oninput=syncPrizeEditor;
+    el.onchange=syncPrizeEditor;
+  });
+
+  editor.querySelectorAll('.remove-prize').forEach(button=>{
+    button.onclick=()=>{
+      if(data.prizes.length<=2){
+        alert('至少保留兩個獎項。');
+        return;
+      }
+      if(confirm('確定刪除此獎項？')){
+        data.prizes.splice(Number(button.dataset.i),1);
+        renderPrizeEditor();
+      }
+    };
+  });
+
+  editor.querySelectorAll('.move-up').forEach(button=>{
+    button.onclick=()=>{
+      const i=Number(button.dataset.i);
+      if(i>0){
+        [data.prizes[i-1],data.prizes[i]]=[data.prizes[i],data.prizes[i-1]];
+        renderPrizeEditor();
+      }
+    };
+  });
+
+  editor.querySelectorAll('.move-down').forEach(button=>{
+    button.onclick=()=>{
+      const i=Number(button.dataset.i);
+      if(i<data.prizes.length-1){
+        [data.prizes[i+1],data.prizes[i]]=[data.prizes[i],data.prizes[i+1]];
+        renderPrizeEditor();
+      }
+    };
+  });
+
+  updateTotals();
+}
+
+function syncPrizeEditor(){
+  document.querySelectorAll('.p-name').forEach(el=>data.prizes[+el.dataset.i].name=el.value);
+  document.querySelectorAll('.p-display').forEach(el=>data.prizes[+el.dataset.i].displayCount=Number(el.value||0));
+  document.querySelectorAll('.p-probability').forEach(el=>data.prizes[+el.dataset.i].probability=Number(el.value||0));
+  document.querySelectorAll('.p-color').forEach(el=>data.prizes[+el.dataset.i].color=el.value);
+  document.querySelectorAll('.p-eligible').forEach(el=>data.prizes[+el.dataset.i].eligible=el.checked);
+  document.querySelectorAll('.p-special').forEach(el=>data.prizes[+el.dataset.i].special=el.checked);
+  document.querySelectorAll('.p-daily').forEach(el=>data.prizes[+el.dataset.i].dailyMax=Number(el.value||0));
+  document.querySelectorAll('.p-total').forEach(el=>data.prizes[+el.dataset.i].totalMax=Number(el.value||0));
+  document.querySelectorAll('.p-guarantee').forEach(el=>data.prizes[+el.dataset.i].guaranteeAfter=Number(el.value||0));
+  updateTotals();
+}
+
+function updateTotals(){
+  const display=data.prizes.reduce((sum,p)=>sum+Number(p.displayCount||0),0);
+  const probability=data.prizes.filter(p=>p.eligible).reduce((sum,p)=>sum+Number(p.probability||0),0);
+
+  $('displayTotal').textContent=`${display} 格`;
+  $('displayTotal').style.color=display>=8&&display<=12?'#3d2e27':'#9e4e45';
+
+  $('probabilityTotal').textContent=`${Math.round(probability*10)/10}%`;
+  $('probabilityTotal').style.color=Math.abs(probability-100)<.001?'#3d2e27':'#9e4e45';
+}
+
+$('addPrizeBtn').onclick=()=>{
+  data.prizes.push({
+    id:'p'+Date.now(),
+    name:'新獎項',
+    displayCount:1,
+    probability:0,
+    eligible:false,
+    color:'cream',
+    special:false,
+    dailyMax:0,
+    totalMax:0,
+    guaranteeAfter:0
+  });
+  renderPrizeEditor();
+};
+
+$('saveDashboardBtn').onclick=()=>{
+  data.startDate=$('startDate').value;
+  data.endDate=$('endDate').value;
+  data.expiryDate=$('expiryDate').value;
+  data.eventEnabled=$('eventEnabled').checked;
+
+  const error=validate();
+  if(error){
+    $('adminMessage').textContent=error;
+    return;
+  }
+  saveData();
+  applySettings();
+  $('adminMessage').textContent='活動設定已儲存。';
+};
+
+$('savePrizesBtn').onclick=()=>{
+  syncPrizeEditor();
+  const error=validate();
+  if(error){
+    $('adminMessage').textContent=error;
+    return;
+  }
+  saveData();
+  drawWheel();
+  fillAdmin();
+  $('adminMessage').textContent='獎項設定已儲存。';
+};
+
+$('saveContentBtn').onclick=()=>{
+  data.texts={
+    heroTitle:$('textHeroTitle').value,
+    heroSubtitle:$('textHeroSubtitle').value,
+    staffTitle:$('textStaffTitle').value,
+    drawTitle:$('textDrawTitle').value,
+    spinButton:$('textSpinButton').value,
+    drawNote:$('textDrawNote').value,
+    resultTitle:$('textResultTitle').value,
+    specialTitle:$('textSpecialTitle').value,
+    resultBadge:$('textResultBadge').value,
+    footer:$('textFooter').value
+  };
+  saveData();
+  applySettings();
+  $('adminMessage').textContent='文字已儲存。';
+};
+
+$('saveEffectsBtn').onclick=()=>{
+  data.effects={
+    countdown:$('effectCountdown').checked,
+    tick:$('effectTick').checked,
+    sound:$('effectSound').checked,
+    confetti:$('effectConfetti').checked,
+    gold:$('effectGold').checked,
+    vibration:$('effectVibration').checked,
+    logo:$('effectLogo').checked,
+    background:$('effectBackground').checked,
+    quote:$('effectQuote').checked,
+    test:$('effectTest').checked
+  };
+  saveData();
+  applySettings();
+  $('adminMessage').textContent='特效設定已儲存。';
+};
+
+function downloadFile(name,text,type){
+  const blob=new Blob([text],{type});
+  const url=URL.createObjectURL(blob);
+  const link=document.createElement('a');
+  link.href=url;
+  link.download=name;
+  link.click();
+  URL.revokeObjectURL(url);
+}
+
+$('exportCsvBtn').onclick=()=>{
+  const rows=[
+    ['日期','時間','獎項'],
+    ...data.records.map(record=>[
+      record.date,
+      new Date(record.time).toLocaleTimeString('zh-TW'),
+      record.prizeName
+    ])
+  ];
+  const csv='\ufeff'+rows.map(row=>row.map(cell=>`"${String(cell).replaceAll('"','""')}"`).join(',')).join('\n');
+  downloadFile('FINUS-抽獎紀錄.csv',csv,'text/csv;charset=utf-8');
+};
+
+$('exportJsonBtn').onclick=()=>{
+  downloadFile('FINUS-設定.json',JSON.stringify(data,null,2),'application/json');
+};
+
+$('importJsonInput').onchange=async event=>{
+  try{
+    const imported=JSON.parse(await event.target.files[0].text());
+    localStorage.setItem(PREVIOUS_KEY,JSON.stringify(data));
+    data=imported;
+    saveData(false);
+    applySettings();
+    fillAdmin();
+    $('adminMessage').textContent='設定已匯入。';
+  }catch{
+    $('adminMessage').textContent='JSON 格式錯誤。';
+  }
+};
+
+$('restorePreviousBtn').onclick=()=>{
+  const previous=localStorage.getItem(PREVIOUS_KEY);
+  if(!previous){
+    alert('沒有上一版設定。');
+    return;
+  }
+  if(confirm('確定還原上一版設定？')){
+    data=JSON.parse(previous);
+    saveData(false);
+    applySettings();
+    fillAdmin();
+  }
+};
+
+$('resetTodayBtn').onclick=()=>{
+  if(confirm('確定重設今日統計？')){
+    const today=todayKey();
+    data.records=data.records.filter(record=>record.date!==today);
+    saveData(false);
+    fillAdmin();
+  }
+};
+
+$('resetAllBtn').onclick=()=>{
+  if(confirm('確定清除全部統計？')){
+    data.records=[];
+    saveData(false);
+    fillAdmin();
+  }
+};
+
+$('restoreDefaultsBtn').onclick=()=>{
+  if(confirm('確定恢復 FINUS 預設？')){
+    localStorage.setItem(PREVIOUS_KEY,JSON.stringify(data));
+    data=clone(defaults);
+    saveData(false);
+    applySettings();
+    fillAdmin();
+  }
+};
+
+$('adminLogoutBtn').onclick=()=>{
+  clearTimeout(adminTimer);
+  showScreen('staff');
+};
+
+applySettings();
+
+if('serviceWorker' in navigator){
+  window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(()=>{}));
+}

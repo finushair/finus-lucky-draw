@@ -1,9 +1,9 @@
 {
-  "name": "FINUS Lucky Draw Pro 2.1 Ultimate",
+  "name": "FINUS Lucky Draw Pro 3.0",
   "short_name": "FINUS 抽獎",
   "start_url": "./",
   "display": "standalone",
-  "background_color": "#f5efe7",
-  "theme_color": "#f5efe7",
+  "background_color": "#f4eee7",
+  "theme_color": "#f4eee7",
   "lang": "zh-Hant"
 }

@@ -1,33 +1,27 @@
-FINUS Lucky Draw Pro 2.1 Ultimate
+# FINUS Lucky Draw Pro 3.0
 
-已補齊：
-- 首頁 Logo 放大
-- 轉盤預覽露出
-- 毛玻璃登入卡片
-- PIN 輸入框縮短
-- Apple 風按鈕回彈
-- 背景柔光
-- Logo 光澤掃描
-- 畫面切換動畫
-- 精品腕錶風大轉盤
-- 顯示格數與真實機率分離
-- 可中獎／僅展示
-- 每日上限、活動上限、保底
-- 8～12 格限制
-- 全文字、特效、統計、CSV、JSON、還原
+## 密碼
+- 店員：2026
+- 管理者入口：首頁 FINUS Logo 連點 3 下
+- 管理者密碼：jun0725
 
-預設：
-$50：6 格、95%、可中獎
-$100：3 格、5%、可中獎
-$500：1 格、0%、僅展示
+## 預設獎項
+- $50：顯示 6 格、真實機率 95%、可中獎
+- $100：顯示 3 格、真實機率 5%、可中獎
+- $500：顯示 1 格、真實機率 0%、僅展示
 
-店員密碼：2026
-管理者：首頁連點 FINUS 三下
-管理者密碼：jun0725
+## 上傳到 GitHub
+請將以下 6 個檔案全部放在 Repository 根目錄：
+- index.html
+- app.css
+- app.js
+- manifest.json
+- sw.js
+- README.md
 
-請上傳：
-index.html
-manifest.json
-sw.js
-css/app.css
-js/app.js
+## 注意
+設定與統計使用瀏覽器 localStorage 儲存：
+- 同一台 iPad / 手機會保留資料
+- 不同裝置不會自動同步
+- 清除 Safari 網站資料會刪除本機設定與統計
+- 請定期匯出 CSV 與 JSON 備份
