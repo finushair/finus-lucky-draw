@@ -1,67 +1,169 @@
-<!doctype html><html lang="zh-Hant"><head>
-<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#f5efe7"><link rel="manifest" href="manifest.json">
-<link rel="stylesheet" href="css/app.css"><title>FINUS Lucky Draw Pro</title></head><body>
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#f5efe7">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<link rel="manifest" href="manifest.json">
+<link rel="stylesheet" href="css/app.css">
+<title>FINUS Lucky Draw Pro 2.1</title>
+</head>
+<body>
 <main class="app">
-<header id="brand"><button id="logo">FINUS</button><small>FIND US. FIND YOUR STYLE.</small>
-<h1 id="heroTitle">週年驚喜抽</h1><p id="heroSub">ANNIVERSARY LUCKY DRAW</p><div id="dates">09.15 — 10.31</div></header>
+<header id="brand" class="brand-shell">
+  <div class="logo-wrap">
+    <button id="logo" class="logo">FINUS</button>
+    <small>SALON</small>
+    <span class="logo-shine"></span>
+  </div>
+  <h1 id="heroTitle">週年驚喜抽</h1>
+  <p id="heroSub">ANNIVERSARY LUCKY DRAW</p>
+  <div id="dates">09.15 — 10.31</div>
+  <div class="wheel-peek" aria-hidden="true">
+    <div class="peek-ring"></div>
+    <div class="peek-slices"></div>
+  </div>
+</header>
 
-<section id="staff" class="screen active panel"><div class="kicker">STAFF ACCESS</div><h2 id="staffTitle">店員解鎖</h2>
-<input id="staffPw" type="password" inputmode="numeric" placeholder="••••"><button id="staffLogin" class="primary">進入抽獎</button>
-<p id="staffMsg" class="msg"></p><p class="hint">下一位客人需重新解鎖</p></section>
+<section id="staff" class="screen active panel glass-panel">
+  <div class="kicker">STAFF ONLY</div>
+  <h2 id="staffTitle">店員解鎖</h2>
+  <label class="field-label">請輸入密碼</label>
+  <input id="staffPw" type="password" inputmode="numeric" placeholder="••••">
+  <button id="staffLogin" class="primary">進入抽獎</button>
+  <p id="staffMsg" class="msg"></p>
+  <p class="hint">每位客人抽完後，下一位需重新輸入密碼</p>
+</section>
 
-<section id="draw" class="screen panel"><div class="kicker">LUCKY MOMENT</div><h2 id="drawTitle">祝你好運</h2>
-<div class="wheel-wrap"><div class="bezel"><div id="pointer" class="pointer">▼</div><svg id="wheel" viewBox="0 0 500 500"></svg>
-<div class="hub"><b>FINUS</b><small>LUCKY DRAW</small></div></div></div>
-<button id="spin" class="primary">開始抽獎</button><p id="drawNote" class="hint">單次消費滿 $2,000，即可獲得一次抽獎機會。</p></section>
+<section id="draw" class="screen panel draw-panel">
+  <div class="kicker">ANNIVERSARY LUCKY DRAW</div>
+  <h2 id="drawTitle">祝你好運</h2>
+  <div class="wheel-wrap">
+    <div class="bezel">
+      <div class="minute-marks"></div>
+      <div id="pointer" class="pointer">
+        <span class="pointer-dot"></span>
+        <span class="pointer-line"></span>
+        <span class="pointer-tip"></span>
+      </div>
+      <svg id="wheel" viewBox="0 0 500 500"></svg>
+      <div class="hub"><b>FINUS</b><small>LUCKY DRAW</small></div>
+      <div class="glass-sheen"></div>
+    </div>
+  </div>
+  <button id="spin" class="primary spin-btn">開始抽獎</button>
+  <p id="drawNote" class="hint">單次消費滿 $2,000，可獲得一次抽獎機會</p>
+</section>
 
-<section id="result" class="screen panel result"><div id="resultKicker" class="kicker">CONGRATULATIONS</div>
-<h2 id="resultTitle">恭喜獲得</h2><div id="resultPrize" class="prize">$50</div><div id="resultBadge" class="badge">會員電子優惠券</div>
-<p>請由櫃檯手動發送至會員帳戶<br>使用期限：<b id="expiryText">2026/12/10</b><br>限原消費門市、原服務設計師使用</p>
-<p id="quote" class="quote" hidden></p><label class="confirm"><input id="sent" type="checkbox"><span>已發送電子優惠券</span></label>
-<button id="next" class="primary" disabled>完成，下一位</button></section>
+<section id="result" class="screen panel result">
+  <div id="resultKicker" class="kicker">CONGRATULATIONS</div>
+  <h2 id="resultTitle">恭喜獲得</h2>
+  <div id="resultPrize" class="prize">$50</div>
+  <div id="resultBadge" class="badge">會員電子優惠券</div>
+  <p>請由櫃檯手動發送至會員帳戶<br>
+  使用期限：<b id="expiryText">2026/12/10</b><br>
+  限原消費門市、原服務設計師使用</p>
+  <p id="quote" class="quote" hidden></p>
+  <label class="confirm"><input id="sent" type="checkbox"><span>已發送電子優惠券</span></label>
+  <button id="next" class="primary" disabled>完成，下一位</button>
+</section>
 
-<section id="admin" class="screen panel"><div class="kicker">ADMIN CENTER</div><h2>FINUS 管理中心</h2>
-<nav class="tabs"><button data-tab="stats" class="active">統計</button><button data-tab="prizes">獎項</button><button data-tab="text">文字</button><button data-tab="effects">特效</button><button data-tab="backup">備份</button></nav>
+<section id="admin" class="screen panel">
+  <div class="kicker">ADMIN CENTER</div>
+  <h2>FINUS 管理中心</h2>
+  <nav class="tabs">
+    <button data-tab="stats" class="active">統計</button>
+    <button data-tab="prizes">獎項</button>
+    <button data-tab="text">文字</button>
+    <button data-tab="effects">特效</button>
+    <button data-tab="backup">備份</button>
+  </nav>
 
-<div class="pane active" data-pane="stats"><div class="stats"><article><span>今日</span><b id="today">0</b></article><article><span>本週</span><b id="week">0</b></article><article><span>累計</span><b id="total">0</b></article></div>
-<div id="prizeStats" class="stats list"></div><div class="grid"><label>開始日<input id="startDate" type="date"></label>
-<label>結束日<input id="endDate" type="date"></label><label>優惠券期限<input id="expiryDate" type="date"></label>
-<label>轉盤格數<select id="segments"><option>8</option><option selected>10</option><option>12</option><option>16</option><option>20</option><option>24</option></select></label></div>
-<label class="switch">活動進行中<input id="enabled" type="checkbox"></label><button id="saveStats" class="primary">儲存活動設定</button></div>
+  <div class="pane active" data-pane="stats">
+    <div class="stats">
+      <article><span>今日</span><b id="today">0</b></article>
+      <article><span>本週</span><b id="week">0</b></article>
+      <article><span>累計</span><b id="total">0</b></article>
+    </div>
+    <div id="prizeStats" class="stats list"></div>
+    <div class="grid">
+      <label>開始日<input id="startDate" type="date"></label>
+      <label>結束日<input id="endDate" type="date"></label>
+      <label>優惠券期限<input id="expiryDate" type="date"></label>
+    </div>
+    <label class="switch">活動進行中<input id="enabled" type="checkbox"></label>
+    <button id="saveStats" class="primary">儲存活動設定</button>
+  </div>
 
-<div class="pane" data-pane="prizes"><div id="prizeEditor"></div><button id="addPrize" class="secondary">＋ 新增獎項</button>
-<div class="prob">機率總和 <b id="probTotal">100%</b></div><button id="savePrizes" class="primary">儲存獎項</button></div>
+  <div class="pane" data-pane="prizes">
+    <p class="hint">顯示格數與真實機率分開設定，總格數限制 8～12 格。</p>
+    <div id="prizeEditor"></div>
+    <button id="addPrize" class="secondary">＋ 新增獎項</button>
+    <div class="summary-row"><span>顯示總格數</span><b id="displayTotal">10 格</b></div>
+    <div class="summary-row"><span>可中獎機率總和</span><b id="probTotal">100%</b></div>
+    <button id="savePrizes" class="primary">儲存獎項</button>
+  </div>
 
-<div class="pane" data-pane="text"><div class="grid one">
-<label>主標題<input id="tHero" type="text"></label><label>英文副標<input id="tSub" type="text"></label>
-<label>店員標題<input id="tStaff" type="text"></label><label>抽獎標題<input id="tDraw" type="text"></label>
-<label>開始按鈕<input id="tSpin" type="text"></label><label>抽獎說明<input id="tNote" type="text"></label>
-<label>一般中獎標題<input id="tResult" type="text"></label><label>特別獎標題<input id="tSpecial" type="text"></label>
-<label>優惠券標籤<input id="tBadge" type="text"></label><label>頁尾文字<input id="tFooter" type="text"></label></div>
-<button id="saveText" class="primary">儲存文字</button></div>
+  <div class="pane" data-pane="text">
+    <div class="grid one">
+      <label>主標題<input id="tHero" type="text"></label>
+      <label>英文副標<input id="tSub" type="text"></label>
+      <label>店員標題<input id="tStaff" type="text"></label>
+      <label>抽獎標題<input id="tDraw" type="text"></label>
+      <label>開始按鈕<input id="tSpin" type="text"></label>
+      <label>抽獎說明<input id="tNote" type="text"></label>
+      <label>一般中獎標題<input id="tResult" type="text"></label>
+      <label>特別獎標題<input id="tSpecial" type="text"></label>
+      <label>優惠券標籤<input id="tBadge" type="text"></label>
+      <label>頁尾文字<input id="tFooter" type="text"></label>
+    </div>
+    <button id="saveText" class="primary">儲存文字</button>
+  </div>
 
-<div class="pane" data-pane="effects">
-<label class="switch">3、2、1 倒數<input id="eCountdown" type="checkbox"></label>
-<label class="switch">轉盤過格聲<input id="eTick" type="checkbox"></label>
-<label class="switch">中獎提示音<input id="eSound" type="checkbox"></label>
-<label class="switch">彩帶<input id="eConfetti" type="checkbox"></label>
-<label class="switch">特別獎金光<input id="eGold" type="checkbox"></label>
-<label class="switch">裝置震動<input id="eVibration" type="checkbox"></label>
-<label class="switch">Logo 動畫<input id="eLogo" type="checkbox"></label>
-<label class="switch">背景柔光<input id="eBg" type="checkbox"></label>
-<label class="switch">幸運語錄<input id="eQuote" type="checkbox"></label>
-<label class="switch">測試模式<input id="eTest" type="checkbox"></label><button id="saveEffects" class="primary">儲存特效</button></div>
+  <div class="pane" data-pane="effects">
+    <label class="switch">3、2、1 倒數<input id="eCountdown" type="checkbox"></label>
+    <label class="switch">轉盤過格聲<input id="eTick" type="checkbox"></label>
+    <label class="switch">中獎提示音<input id="eSound" type="checkbox"></label>
+    <label class="switch">彩帶<input id="eConfetti" type="checkbox"></label>
+    <label class="switch">特別獎金光<input id="eGold" type="checkbox"></label>
+    <label class="switch">裝置震動<input id="eVibration" type="checkbox"></label>
+    <label class="switch">Logo 動畫<input id="eLogo" type="checkbox"></label>
+    <label class="switch">背景柔光<input id="eBg" type="checkbox"></label>
+    <label class="switch">幸運語錄<input id="eQuote" type="checkbox"></label>
+    <label class="switch">測試模式<input id="eTest" type="checkbox"></label>
+    <button id="saveEffects" class="primary">儲存特效</button>
+  </div>
 
-<div class="pane" data-pane="backup"><button id="csv" class="secondary">匯出 CSV</button><button id="jsonOut" class="secondary">匯出 JSON</button>
-<label class="secondary upload">匯入 JSON<input id="jsonIn" type="file" accept="application/json"></label>
-<button id="restore" class="secondary">還原上一版</button><button id="resetToday" class="danger">重設今日統計</button>
-<button id="resetAll" class="danger">重設全部統計</button><button id="defaults" class="danger">恢復 FINUS 預設</button></div>
-<p id="adminMsg" class="msg"></p><button id="logout" class="secondary">離開管理中心</button></section>
-<footer id="footer">每份驚喜，都是 FINUS 的心意。</footer></main>
+  <div class="pane" data-pane="backup">
+    <button id="csv" class="secondary">匯出 CSV</button>
+    <button id="jsonOut" class="secondary">匯出 JSON</button>
+    <label class="secondary upload">匯入 JSON<input id="jsonIn" type="file" accept="application/json"></label>
+    <button id="restore" class="secondary">還原上一版</button>
+    <button id="resetToday" class="danger">重設今日統計</button>
+    <button id="resetAll" class="danger">重設全部統計</button>
+    <button id="defaults" class="danger">恢復 FINUS 預設</button>
+  </div>
 
-<dialog id="adminDialog"><div class="dialog"><div class="kicker">ADMIN ONLY</div><h2>管理者登入</h2>
-<input id="adminPw" type="password"><button id="adminLogin" class="primary">進入後台</button><button id="adminCancel" class="secondary">取消</button>
-<p id="adminLoginMsg" class="msg"></p></div></dialog>
-<div id="countdown" class="countdown"><span>3</span></div><div id="confetti" class="confetti"></div>
-<script src="js/app.js"></script></body></html>
+  <p id="adminMsg" class="msg"></p>
+  <button id="logout" class="secondary">離開管理中心</button>
+</section>
+
+<footer id="footer">每份驚喜，都是 FINUS 的心意。</footer>
+</main>
+
+<dialog id="adminDialog">
+  <div class="dialog">
+    <div class="kicker">ADMIN ONLY</div>
+    <h2>管理者登入</h2>
+    <input id="adminPw" type="password">
+    <button id="adminLogin" class="primary">進入後台</button>
+    <button id="adminCancel" class="secondary">取消</button>
+    <p id="adminLoginMsg" class="msg"></p>
+  </div>
+</dialog>
+
+<div id="countdown" class="countdown"><span>3</span></div>
+<div id="confetti" class="confetti"></div>
+<script src="js/app.js"></script>
+</body></html>
