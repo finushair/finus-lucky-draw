@@ -1,5 +1,5 @@
 
-const APP_VERSION='4.0.0';
+const APP_VERSION='4.0.1';
 const VERSION_FILE='./version.json';
 const STORAGE_KEY='finusLuckyDrawPro30';
 const PREVIOUS_KEY='finusLuckyDrawPro30Previous';
@@ -26,7 +26,7 @@ const defaults={
     footer:'每份驚喜，都是 FINUS 的心意。'
   },
   effects:{
-    countdown:true,tick:true,sound:true,confetti:true,gold:true,
+    countdown:false,tick:true,sound:true,confetti:true,gold:true,
     vibration:false,logo:true,background:true,quote:false,test:false
   },
   prizes:[
@@ -63,6 +63,14 @@ function loadData(){
 }
 
 let data=loadData();
+
+const COUNTDOWN_OFF_MIGRATION_KEY='finusCountdownDefaultOff_v401';
+if(!localStorage.getItem(COUNTDOWN_OFF_MIGRATION_KEY)){
+  data.effects.countdown=false;
+  localStorage.setItem(STORAGE_KEY,JSON.stringify(data));
+  localStorage.setItem(COUNTDOWN_OFF_MIGRATION_KEY,'1');
+}
+
 let rotation=0;
 let spinning=false;
 let tickTimer;
@@ -290,9 +298,8 @@ function drawWheel(){
     text.setAttribute('font-size',segments.length>=12?'18':segments.length>=10?'21':'24');
     text.setAttribute('font-weight',prize.special?'700':'500');
 
-    let readableRotation=middle;
-    if(readableRotation>90 && readableRotation<270) readableRotation+=180;
-    text.setAttribute('transform',`rotate(${readableRotation},${point.x},${point.y})`);
+    // 所有獎項文字保持水平正向，手機閱讀最清楚。
+    text.setAttribute('transform',`rotate(0,${point.x},${point.y})`);
 
     if(prize.special) text.classList.add('featured-label');
     if(!prize.eligible) text.classList.add('display-only-label');

@@ -1,5 +1,5 @@
 {
-  "version": "4.0.0",
-  "name": "FINUS Lucky Draw Pro 4.0 Mobile",
-  "notes": "手機操作最佳化、後台分頁強化、版本檢查、清除快取與一鍵重新載入。"
+  "version": "4.0.1",
+  "name": "FINUS Lucky Draw Pro 4.0.1 Mobile",
+  "notes": "預設關閉 3、2、1 倒數；修正轉盤獎項文字倒置；修正網頁版本標題。"
 }
