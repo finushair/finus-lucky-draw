@@ -1,4 +1,6 @@
 
+const APP_VERSION='4.0.0';
+const VERSION_FILE='./version.json';
 const STORAGE_KEY='finusLuckyDrawPro30';
 const PREVIOUS_KEY='finusLuckyDrawPro30Previous';
 const STAFF_PASSWORD='2026';
@@ -93,7 +95,55 @@ function dateLabel(iso){
   return `${m}.${d}`;
 }
 
+
+function showToast(message){
+  let toast=document.querySelector('.mobile-save-toast');
+  if(!toast){
+    toast=document.createElement('div');
+    toast.className='mobile-save-toast';
+    document.body.appendChild(toast);
+  }
+  toast.textContent=message;
+  toast.classList.add('show');
+  clearTimeout(showToast.timer);
+  showToast.timer=setTimeout(()=>toast.classList.remove('show'),1800);
+}
+
+function closeKeyboard(){
+  const active=document.activeElement;
+  if(active&&['INPUT','SELECT','TEXTAREA'].includes(active.tagName)) active.blur();
+}
+
+function versionCompare(a,b){
+  const A=String(a).split('.').map(Number),B=String(b).split('.').map(Number);
+  for(let i=0;i<Math.max(A.length,B.length);i++){
+    const x=A[i]||0,y=B[i]||0;
+    if(x>y)return 1;
+    if(x<y)return -1;
+  }
+  return 0;
+}
+
+async function fetchLatestVersion(){
+  const response=await fetch(`${VERSION_FILE}?t=${Date.now()}`,{cache:'no-store'});
+  if(!response.ok) throw new Error('version fetch failed');
+  return response.json();
+}
+
+async function clearWebCaches(){
+  if('serviceWorker' in navigator){
+    const registrations=await navigator.serviceWorker.getRegistrations();
+    await Promise.all(registrations.map(reg=>reg.unregister()));
+  }
+  if('caches' in window){
+    const keys=await caches.keys();
+    await Promise.all(keys.map(key=>caches.delete(key)));
+  }
+}
+
 function applySettings(){
+  if($('versionBadge')) $('versionBadge').textContent=APP_VERSION;
+  if($('currentVersion')) $('currentVersion').textContent=APP_VERSION;
   $('heroTitle').textContent=data.texts.heroTitle;
   $('heroSubtitle').textContent=data.texts.heroSubtitle;
   $('staffTitle').textContent=data.texts.staffTitle;
@@ -488,7 +538,7 @@ function resetAdminTimer(){
       showScreen('staff');
       alert('管理後台已自動登出。');
     }
-  },300000);
+  },1800000);
 }
 
 document.addEventListener('click',()=>{
@@ -691,8 +741,45 @@ $('saveDashboardBtn').onclick=()=>{
     return;
   }
   saveData();
-  applySettings();
-  $('adminMessage').textContent='活動設定已儲存。';
+  
+$('checkUpdateBtn').onclick=async()=>{
+  $('versionNote').textContent='正在檢查線上版本…';
+  $('checkUpdateBtn').disabled=true;
+  try{
+    const info=await fetchLatestVersion();
+    $('latestVersion').textContent=info.version||'未知';
+    if(versionCompare(info.version,APP_VERSION)>0){
+      $('versionNote').textContent=info.notes||`發現新版 ${info.version}`;
+      $('applyUpdateBtn').hidden=false;
+      showToast('發現新版本');
+    }else{
+      $('versionNote').textContent='目前已是最新版。';
+      $('applyUpdateBtn').hidden=true;
+      showToast('目前已是最新版');
+    }
+  }catch{
+    $('versionNote').textContent='無法讀取版本資訊，請確認 version.json 已上傳。';
+  }finally{
+    $('checkUpdateBtn').disabled=false;
+  }
+};
+
+$('applyUpdateBtn').onclick=async()=>{
+  if(!confirm('更新前會保留目前設定與統計。現在重新載入最新版？'))return;
+  showToast('正在更新…');
+  await clearWebCaches();
+  location.replace(`${location.pathname}?updated=${Date.now()}`);
+};
+
+$('forceReloadBtn').onclick=async()=>{
+  if(!confirm('清除網站快取並重新載入？本機獎項設定與統計會保留。'))return;
+  await clearWebCaches();
+  location.replace(`${location.pathname}?refresh=${Date.now()}`);
+};
+
+
+applySettings();
+  $('adminMessage').textContent='活動設定已儲存。';showToast('活動設定已儲存');closeKeyboard();
 };
 
 $('savePrizesBtn').onclick=()=>{
@@ -705,7 +792,7 @@ $('savePrizesBtn').onclick=()=>{
   saveData();
   drawWheel();
   fillAdmin();
-  $('adminMessage').textContent='獎項設定已儲存。';
+  $('adminMessage').textContent='獎項設定已儲存。';showToast('獎項設定已儲存');closeKeyboard();
 };
 
 $('saveContentBtn').onclick=()=>{
@@ -723,7 +810,7 @@ $('saveContentBtn').onclick=()=>{
   };
   saveData();
   applySettings();
-  $('adminMessage').textContent='文字已儲存。';
+  $('adminMessage').textContent='文字已儲存。';showToast('文字已儲存');closeKeyboard();
 };
 
 $('saveEffectsBtn').onclick=()=>{
@@ -741,7 +828,7 @@ $('saveEffectsBtn').onclick=()=>{
   };
   saveData();
   applySettings();
-  $('adminMessage').textContent='特效設定已儲存。';
+  $('adminMessage').textContent='特效設定已儲存。';showToast('特效設定已儲存');closeKeyboard();
 };
 
 function downloadFile(name,text,type){
@@ -836,3 +923,7 @@ applySettings();
 if('serviceWorker' in navigator){
   window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(()=>{}));
 }
+
+document.addEventListener('click',event=>{
+  if(event.target.matches('button,.tab')) closeKeyboard();
+});

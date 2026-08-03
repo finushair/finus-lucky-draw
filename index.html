@@ -141,6 +141,20 @@
       </section>
 
       <section class="pane" data-pane="backup">
+        <div class="version-card">
+          <div>
+            <span>目前版本</span>
+            <strong id="currentVersion">4.0.0</strong>
+          </div>
+          <div>
+            <span>線上版本</span>
+            <strong id="latestVersion">尚未檢查</strong>
+          </div>
+        </div>
+        <p id="versionNote" class="hint">可檢查 GitHub Pages 是否已有新版；更新不會刪除本機設定與統計。</p>
+        <button id="checkUpdateBtn" class="btn secondary" type="button">檢查新版</button>
+        <button id="applyUpdateBtn" class="btn primary" type="button" hidden>立即更新到最新版</button>
+        <button id="forceReloadBtn" class="btn secondary" type="button">清除快取並重新載入</button>
         <button id="exportCsvBtn" class="btn secondary" type="button">匯出 CSV</button>
         <button id="exportJsonBtn" class="btn secondary" type="button">匯出 JSON</button>
         <label class="btn secondary upload">匯入 JSON<input id="importJsonInput" type="file" accept="application/json"></label>
@@ -154,7 +168,7 @@
       <button id="adminLogoutBtn" class="btn secondary" type="button">離開管理中心</button>
     </section>
 
-    <footer id="footerText">每份驚喜，都是 FINUS 的心意。</footer>
+    <footer id="footerText">每份驚喜，都是 FINUS 的心意。</footer><div class="version-badge">FINUS Pro <span id="versionBadge">4.0.0</span></div>
   </main>
 
   <dialog id="adminDialog">
